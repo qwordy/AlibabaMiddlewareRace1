@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.rocketmq;
 
 import com.alibaba.middleware.race.RaceConfig;
+import com.alibaba.rocketmq.client.consumer.DefaultMQPullConsumer;
 import com.alibaba.rocketmq.client.consumer.DefaultMQPushConsumer;
 import com.alibaba.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import com.alibaba.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -23,43 +24,52 @@ import java.util.List;
  */
 public class Consumer {
 
-    public static void main(String[] args) throws InterruptedException, MQClientException {
-        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("please_rename_unique_group_name_4");
+  public static void main(String[] args) throws InterruptedException, MQClientException {
+    DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(RaceConfig.MetaConsumerGroup);
 
-        /**
-         * 设置Consumer第一次启动是从队列头部开始消费还是队列尾部开始消费<br>
-         * 如果非第一次启动，那么按照上次消费的位置继续消费
-         */
-        consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+    /**
+     * 设置Consumer第一次启动是从队列头部开始消费还是队列尾部开始消费<br>
+     * 如果非第一次启动，那么按照上次消费的位置继续消费
+     */
+    consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
 
-        //在本地搭建好broker后,记得指定nameServer的地址
-        //consumer.setNamesrvAddr("127.0.0.1:9876");
+    //在本地搭建好broker后,记得指定nameServer的地址
+    //consumer.setNamesrvAddr("127.0.0.1:9876");
 
-        consumer.subscribe(RaceConfig.MqPayTopic, "*");
+    consumer.subscribe(RaceConfig.MqPayTopic, "*");
+    consumer.subscribe(RaceConfig.MqTmallTradeTopic, "*");
+    consumer.subscribe(RaceConfig.MqTaobaoTradeTopic, "*");
 
-        consumer.registerMessageListener(new MessageListenerConcurrently() {
+    consumer.registerMessageListener(new MessageListenerConcurrently() {
 
-            @Override
-            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs,
-                                                            ConsumeConcurrentlyContext context) {
-                for (MessageExt msg : msgs) {
+      @Override
+      public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs,
+                                                      ConsumeConcurrentlyContext context) {
+        System.out.println("consumeMessage" + msgs.size());
+        //try {Thread.sleep(1000);}catch(Exception e){}
 
-                    byte [] body = msg.getBody();
-                    if (body.length == 2 && body[0] == 0 && body[1] == 0) {
-                        //Info: 生产者停止生成数据, 并不意味着马上结束
-                        System.out.println("Got the end signal");
-                        continue;
-                    }
+        for (MessageExt msg : msgs) {
 
-                    PaymentMessage paymentMessage = RaceUtils.readKryoObject(PaymentMessage.class, body);
-                    System.out.println(paymentMessage);
-                }
-                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
-            }
-        });
+          byte[] body = msg.getBody();
+          if (body.length == 2 && body[0] == 0 && body[1] == 0) {
+            //Info: 生产者停止生成数据, 并不意味着马上结束
+            System.out.println("Got the end signal");
+            continue;
+          }
 
-        consumer.start();
+          if (msg.getTopic().equals(RaceConfig.MqPayTopic)) {
+            PaymentMessage paymentMessage = RaceUtils.readKryoObject(PaymentMessage.class, body);
+            System.out.println(paymentMessage);
+          } else {
+            System.out.println(RaceUtils.readKryoObject(OrderMessage.class, body));
+          }
+        }
+        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+      }
+    });
 
-        System.out.println("Consumer Started.");
-    }
+    consumer.start();
+
+    System.out.println("Consumer Started.");
+  }
 }
