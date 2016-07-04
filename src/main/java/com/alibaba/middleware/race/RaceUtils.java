@@ -1,5 +1,6 @@
 package com.alibaba.middleware.race;
 
+import com.alibaba.middleware.race.jstorm.PayRatioData;
 import com.alibaba.middleware.race.model.OrderMessage;
 import com.alibaba.middleware.race.model.PaymentMessage;
 import com.alibaba.rocketmq.common.message.MessageExt;
@@ -8,6 +9,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import java.io.PrintWriter;
+import java.util.Map;
 
 
 public class RaceUtils {
@@ -43,20 +45,46 @@ public class RaceUtils {
     try {
       if (pw == null)
         pw = new PrintWriter("log");
-      pw.print(head + ' ');
-      byte[] body = msg.getBody();
-      if (body.length == 2 && body[0] == 0 && body[1] == 0) {
-        pw.println("End of " + msg.getTopic());
-      } else if (msg.getTopic().equals(RaceConfig.MqPayTopic)) {
-        PaymentMessage paymentMessage = RaceUtils.readKryoObject(PaymentMessage.class, body);
-        pw.println(paymentMessage);
-      } else {
-        OrderMessage orderMessage = RaceUtils.readKryoObject(OrderMessage.class, body);
-        pw.println(orderMessage);
-      }
-      pw.flush();
     } catch (Exception e) {
       e.printStackTrace();
     }
+    pw.print(head + ' ');
+    byte[] body = msg.getBody();
+    if (body.length == 2 && body[0] == 0 && body[1] == 0) {
+      pw.println("End of " + msg.getTopic());
+    } else if (msg.getTopic().equals(RaceConfig.MqPayTopic)) {
+      PaymentMessage paymentMessage = RaceUtils.readKryoObject(PaymentMessage.class, body);
+      pw.println(paymentMessage);
+    } else {
+      OrderMessage orderMessage = RaceUtils.readKryoObject(OrderMessage.class, body);
+      pw.println(orderMessage);
+    }
+    pw.flush();
+  }
+
+  public static synchronized void printPayRatio(Map<Long, PayRatioData> map) {
+    try {
+      if (pw == null)
+        pw = new PrintWriter("log");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    pw.println("[ratio] map size " + map.size());
+    for (long key : map.keySet()) {
+      PayRatioData value = map.get(key);
+      pw.printf("[ratio] key:%d %s\n", key, value);
+    }
+    pw.flush();
+  }
+
+  public static synchronized void println(Object o) {
+    try {
+      if (pw == null)
+        pw = new PrintWriter("log");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    pw.println(o);
+    pw.flush();
   }
 }

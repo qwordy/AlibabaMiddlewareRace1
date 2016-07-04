@@ -8,8 +8,6 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.RaceUtils;
-import com.alibaba.middleware.race.model.OrderMessage;
-import com.alibaba.middleware.race.model.PaymentMessage;
 import com.alibaba.rocketmq.client.consumer.DefaultMQPushConsumer;
 import com.alibaba.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import com.alibaba.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -32,8 +30,6 @@ public class MessageSpout implements IRichSpout {
 
   private BlockingQueue<MessageExt> queue;
 
-  private int count;
-
   @Override
   public void open(Map map, TopologyContext topologyContext,
                    SpoutOutputCollector spoutOutputCollector) {
@@ -43,7 +39,7 @@ public class MessageSpout implements IRichSpout {
 
     DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(RaceConfig.MetaConsumerGroup);
     consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
-    //consumer.setNamesrvAddr("127.0.0.1:9876");
+
     try {
       consumer.subscribe(RaceConfig.MqPayTopic, "*");
       consumer.subscribe(RaceConfig.MqTmallTradeTopic, "*");
@@ -55,7 +51,6 @@ public class MessageSpout implements IRichSpout {
           try {
             for (MessageExt msg : list) {
               queue.put(msg);
-              count++;
             }
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
           } catch (Exception e) {
@@ -75,7 +70,7 @@ public class MessageSpout implements IRichSpout {
   public void nextTuple() {
     try {
       MessageExt msg = queue.take();
-      RaceUtils.printMsg(msg, "MessageSpout");
+      //RaceUtils.printMsg(msg, "[MessageSpout]");
       collector.emit(new Values(msg));
     } catch (Exception e) {
       e.printStackTrace();
