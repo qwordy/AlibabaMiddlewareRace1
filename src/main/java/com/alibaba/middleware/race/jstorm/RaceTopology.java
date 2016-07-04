@@ -2,6 +2,7 @@ package com.alibaba.middleware.race.jstorm;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
+import backtype.storm.StormSubmitter;
 import backtype.storm.topology.TopologyBuilder;
 import com.alibaba.middleware.race.RaceConfig;
 
@@ -18,10 +19,15 @@ public class RaceTopology {
 
     builder.setSpout("spout", new MessageSpout(), 1);
     builder.setBolt("payRatio", new PayRatioBolt(), 1).shuffleGrouping("spout");
-    builder.setBolt("realTimePay", new RealTimePayBolt(), 1).shuffleGrouping("spout");
+    //builder.setBolt("realTimePay", new RealTimePayBolt(), 1).shuffleGrouping("spout");
 
-    LocalCluster cluster = new LocalCluster();
-    cluster.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
+//    LocalCluster cluster = new LocalCluster();
+//    cluster.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
 
+    try {
+      StormSubmitter.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 }

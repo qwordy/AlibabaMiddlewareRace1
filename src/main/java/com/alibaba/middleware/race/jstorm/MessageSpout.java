@@ -70,7 +70,7 @@ public class MessageSpout implements IRichSpout {
   public void nextTuple() {
     try {
       MessageExt msg = queue.take();
-      RaceUtils.printMsg(msg, "[MessageSpout]");
+      //RaceUtils.printMsg(msg, "[MessageSpout]");
       collector.emit(new Values(msg));
     } catch (Exception e) {
       e.printStackTrace();

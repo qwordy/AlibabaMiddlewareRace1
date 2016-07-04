@@ -7,6 +7,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Tuple;
 import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.RaceUtils;
+import com.alibaba.middleware.race.Tair.TairOperatorImpl;
 import com.alibaba.middleware.race.model.PaymentMessage;
 import com.alibaba.rocketmq.common.message.MessageExt;
 
@@ -21,21 +22,24 @@ public class PayRatioBolt implements IRichBolt {
 
   private OutputCollector collector;
 
-  // time, paySum
+  // time, payRatioData
   private Map<Long, PayRatioData> map;
 
-  private int count;
+  private TairOperatorImpl tairOperator;
 
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
     collector = outputCollector;
     this.map = new HashMap<>();
+    tairOperator = new TairOperatorImpl(RaceConfig.TairConfigServer,
+        RaceConfig.TairSalveConfigServer,
+        RaceConfig.TairGroup, RaceConfig.TairNamespace);
   }
 
   @Override
   public void execute(Tuple tuple) {
     MessageExt msg = (MessageExt) tuple.getValue(0);
-    RaceUtils.printMsg(msg, "[PayRatioBolt]");
+    //RaceUtils.printMsg(msg, "[PayRatioBolt]");
     deal(msg);
     collector.ack(tuple);
   }
@@ -44,26 +48,28 @@ public class PayRatioBolt implements IRichBolt {
     if (!msg.getTopic().equals(RaceConfig.MqPayTopic))
       return;
 
-    count++;
     byte[] body = msg.getBody();
     if (body.length == 2 && body[0] == 0 && body[1] == 0) {
-      RaceUtils.println(count);
-      RaceUtils.printPayRatio(map);
+
     } else {
       PaymentMessage pm = RaceUtils.readKryoObject(PaymentMessage.class, body);
       long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
       PayRatioData data = map.get(minuteTime);
       if (data == null) {
         if (pm.getPayPlatform() == 0)  // pc
-          map.put(minuteTime, new PayRatioData(0, pm.getPayAmount()));
+          data = new PayRatioData(0, pm.getPayAmount());
         else
-          map.put(minuteTime, new PayRatioData(pm.getPayAmount(), 0));
+          data = new PayRatioData(pm.getPayAmount(), 0);
+        map.put(minuteTime, data);
       } else {
         if (pm.getPayPlatform() == 0)  // pc
           data.addPc(pm.getPayAmount());
         else
           data.addWireless(pm.getPayAmount());
+        map.put(minuteTime, data);
       }
+      tairOperator.write(RaceConfig.prex_ratio + minuteTime, data.ratio());
+      //RaceUtils.println(RaceConfig.prex_ratio + minuteTime + ' ' + data.ratio());
     }
   }
 
