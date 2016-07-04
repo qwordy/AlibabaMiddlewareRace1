@@ -61,7 +61,8 @@ public class Consumer {
             PaymentMessage paymentMessage = RaceUtils.readKryoObject(PaymentMessage.class, body);
             System.out.println(paymentMessage);
           } else {
-            System.out.println(RaceUtils.readKryoObject(OrderMessage.class, body));
+            OrderMessage orderMessage = RaceUtils.readKryoObject(OrderMessage.class, body);
+            System.out.println(orderMessage);
           }
         }
         return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
