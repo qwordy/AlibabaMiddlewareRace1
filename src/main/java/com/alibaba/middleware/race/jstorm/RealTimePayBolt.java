@@ -5,16 +5,15 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.IRichBolt;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Tuple;
-import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.rocketmq.common.message.MessageExt;
 
 import java.util.Map;
 
 /**
  * Created by yfy on 7/4/16.
- * RealPayBolt
+ * RealTimePayBolt
  */
-public class RealPayBolt implements IRichBolt {
+public class RealTimePayBolt implements IRichBolt {
 
   private OutputCollector collector;
 
@@ -26,7 +25,7 @@ public class RealPayBolt implements IRichBolt {
   @Override
   public void execute(Tuple tuple) {
     MessageExt msg = (MessageExt) tuple.getValue(0);
-    //RaceUtils.printMsg(msg, "[RealPayBolt]");
+    //RaceUtils.printMsg(msg, "[RealTimePayBolt]");
     collector.ack(tuple);
   }
 
