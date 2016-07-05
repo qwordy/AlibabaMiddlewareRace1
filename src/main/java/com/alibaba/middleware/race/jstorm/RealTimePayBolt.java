@@ -5,7 +5,6 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.IRichBolt;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Tuple;
-import com.alibaba.rocketmq.common.message.MessageExt;
 
 import java.util.Map;
 

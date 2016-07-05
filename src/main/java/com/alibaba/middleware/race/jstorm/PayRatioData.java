@@ -8,9 +8,19 @@ import java.math.BigDecimal;
  */
 public class PayRatioData {
 
+  public PayRatioData() {
+    w = 0;
+    p = 0;
+  }
+
   public PayRatioData(double wireless, double pc) {
     w = wireless;
     p = pc;
+  }
+
+  public PayRatioData(PayRatioData data) {
+    w = data.getWireless();
+    p = data.getPc();
   }
 
   public void addWireless(double amount) {
@@ -19,6 +29,14 @@ public class PayRatioData {
 
   public void addPc(double amount) {
     p += amount;
+  }
+
+  public double getWireless() {
+    return w;
+  }
+
+  public double getPc() {
+    return p;
   }
 
   public Double ratio() {

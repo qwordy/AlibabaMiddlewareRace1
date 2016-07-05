@@ -7,13 +7,10 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Tuple;
 import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.RaceUtils;
-import com.alibaba.middleware.race.Tair.TairOperatorImpl;
 import com.alibaba.middleware.race.model.PaymentMessage;
-import com.alibaba.rocketmq.common.message.MessageExt;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.TreeMap;
 
 /**
  * Created by yfy on 7/4/16.
@@ -24,14 +21,14 @@ public class PayRatioBolt implements IRichBolt {
   private OutputCollector collector;
 
   // time, payRatioData
-  private Map<Long, PayRatioData> map;
+  private TreeMap<Long, PayRatioData> map;
 
   private WriteTairThread writeTairThread;
 
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
     collector = outputCollector;
-    this.map = new HashMap<>();
+    this.map = new TreeMap<>();
 
     writeTairThread = new WriteTairThread();
     new Thread(writeTairThread).start();
@@ -50,28 +47,56 @@ public class PayRatioBolt implements IRichBolt {
       return;
 
     byte[] body = msg.getBody();
-    if (body.length == 2 && body[0] == 0 && body[1] == 0) {
+    if (body.length == 2 && body[0] == 0 && body[1] == 0)
+      return;
 
-    } else {
-      PaymentMessage pm = RaceUtils.readKryoObject(PaymentMessage.class, body);
-      long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
-      PayRatioData data = map.get(minuteTime);
-      if (data == null) {
-        if (pm.getPayPlatform() == 0)  // pc
-          data = new PayRatioData(0, pm.getPayAmount());
-        else
-          data = new PayRatioData(pm.getPayAmount(), 0);
-        map.put(minuteTime, data);
-      } else {
-        if (pm.getPayPlatform() == 0)  // pc
-          data.addPc(pm.getPayAmount());
-        else
-          data.addWireless(pm.getPayAmount());
-        map.put(minuteTime, data);
-      }
-      //RaceUtils.println(RaceConfig.prex_ratio + minuteTime + ' ' + data.ratio());
-      writeTairThread.addPair(new Pair(RaceConfig.prex_ratio + minuteTime, data.ratio()));
+    PaymentMessage pm = RaceUtils.readKryoObject(PaymentMessage.class, body);
+    long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
+    PayRatioData data = map.get(minuteTime);
+
+    if (data == null) {
+      Map.Entry<Long, PayRatioData> entry = map.lowerEntry(minuteTime);
+      if (entry == null)
+        data = new PayRatioData();
+      else
+        data = new PayRatioData(entry.getValue());
     }
+
+    if (pm.getPayPlatform() == 0) {  // pc
+      data.addPc(pm.getPayAmount());
+      map.put(minuteTime, data);
+      writeTairThread.addPair(new Pair(RaceConfig.prex_ratio + minuteTime, data.ratio()));
+      long time = minuteTime;
+      while (true) {  // add later minute pay sum
+        Map.Entry<Long, PayRatioData> entry = map.higherEntry(time);
+        if (entry == null) {
+          break;
+        } else {
+          entry.getValue().addPc(pm.getPayAmount());
+          writeTairThread.addPair(
+              new Pair(RaceConfig.prex_ratio + time, entry.getValue().ratio()));
+          time = entry.getKey();
+        }
+      }
+    } else {  // wireless
+      data.addWireless(pm.getPayAmount());
+      map.put(minuteTime, data);
+      writeTairThread.addPair(new Pair(RaceConfig.prex_ratio + minuteTime, data.ratio()));
+      long time = minuteTime;
+      while (true) {
+        Map.Entry<Long, PayRatioData> entry = map.higherEntry(time);
+        if (entry == null) {
+          break;
+        } else {
+          entry.getValue().addWireless(pm.getPayAmount());
+          writeTairThread.addPair(
+              new Pair(RaceConfig.prex_ratio + time, entry.getValue().ratio()));
+          time = entry.getKey();
+        }
+      }
+    }
+
+    //RaceUtils.println(RaceConfig.prex_ratio + minuteTime + ' ' + data.ratio());
   }
 
   @Override

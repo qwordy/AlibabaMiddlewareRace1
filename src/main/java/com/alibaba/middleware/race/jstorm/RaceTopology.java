@@ -21,8 +21,8 @@ public class RaceTopology {
     builder.setBolt("payRatio", new PayRatioBolt(), 1).shuffleGrouping("spout");
     builder.setBolt("realTimePay", new RealTimePayBolt(), 1).shuffleGrouping("spout");
 
-//    LocalCluster cluster = new LocalCluster();
-//    cluster.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
+    LocalCluster cluster = new LocalCluster();
+    cluster.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
 
     try {
       StormSubmitter.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
