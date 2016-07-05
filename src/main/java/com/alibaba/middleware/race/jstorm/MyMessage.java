@@ -6,13 +6,18 @@ package com.alibaba.middleware.race.jstorm;
  */
 public class MyMessage {
 
-  private String topic;
+  private String msgId, topic;
 
   private byte[] body;
 
-  public MyMessage(String topic, byte[] body) {
+  public MyMessage(String msgId, String topic, byte[] body) {
+    this.msgId = msgId;
     this.topic = topic;
     this.body = body;
+  }
+
+  public String getMsgId() {
+    return msgId;
   }
 
   public String getTopic() {

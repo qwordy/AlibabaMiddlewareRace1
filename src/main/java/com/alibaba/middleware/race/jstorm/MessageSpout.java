@@ -53,7 +53,8 @@ public class MessageSpout implements IRichSpout {
           try {
             for (MessageExt msg : list) {
               //RaceUtils.println("[msgListSize] " + list.size());
-              queue.put(new MyMessage(msg.getTopic(), msg.getBody()));
+              RaceUtils.println("[MessageId] " + msg.getMsgId());
+              queue.put(new MyMessage(msg.getMsgId(), msg.getTopic(), msg.getBody()));
             }
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
           } catch (Exception e) {

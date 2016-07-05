@@ -40,15 +40,16 @@ public class TairOperatorImpl {
 
   public TairOperatorImpl() {}
 
-  public boolean write(Serializable key, Serializable value) {
+  public boolean write0(Serializable key, Serializable value) {
     ResultCode code;
-    while (true) {
+    for (int i = 0; i < 20; i++) {
       code = manager.put(namespace, key, value);
       if (code.isSuccess()) return true;
     }
+    return false;
   }
 
-  public void write2(Serializable key, Serializable value) {
+  public void write(Serializable key, Serializable value) {
     try {
       Thread.sleep(1000);
     } catch (Exception e) {

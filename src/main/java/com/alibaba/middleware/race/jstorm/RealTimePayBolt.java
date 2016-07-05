@@ -5,6 +5,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.IRichBolt;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Tuple;
+import com.alibaba.middleware.race.RaceConfig;
 
 import java.util.Map;
 
@@ -30,6 +31,12 @@ public class RealTimePayBolt implements IRichBolt {
   }
 
   private void deal(MyMessage msg) {
+    String topic = msg.getTopic();
+    if (topic.equals(RaceConfig.MqPayTopic)) {
+
+    } else {
+
+    }
 
   }
 

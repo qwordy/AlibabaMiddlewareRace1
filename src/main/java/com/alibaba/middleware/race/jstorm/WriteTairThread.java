@@ -20,10 +20,10 @@ public class WriteTairThread implements Runnable {
   public WriteTairThread() {
     queue = new LinkedBlockingQueue<>(100000);
 
-    tairOperator = new TairOperatorImpl(RaceConfig.TairConfigServer,
-        RaceConfig.TairSalveConfigServer,
-        RaceConfig.TairGroup, RaceConfig.TairNamespace);
-//    tairOperator = new TairOperatorImpl();
+//    tairOperator = new TairOperatorImpl(RaceConfig.TairConfigServer,
+//        RaceConfig.TairSalveConfigServer,
+//        RaceConfig.TairGroup, RaceConfig.TairNamespace);
+    tairOperator = new TairOperatorImpl();
   }
 
   public void addPair(Pair pair) {
