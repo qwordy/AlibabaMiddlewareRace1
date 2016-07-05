@@ -40,7 +40,7 @@ public class TairOperatorImpl {
 
   public TairOperatorImpl() {}
 
-  public boolean write3(Serializable key, Serializable value) {
+  public boolean write(Serializable key, Serializable value) {
     ResultCode code;
     while (true) {
       code = manager.put(namespace, key, value);
@@ -48,7 +48,7 @@ public class TairOperatorImpl {
     }
   }
 
-  public void write(Serializable key, Serializable value) {
+  public void write2(Serializable key, Serializable value) {
     try {
       Thread.sleep(1000);
     } catch (Exception e) {

@@ -25,7 +25,12 @@ public class RealTimePayBolt implements IRichBolt {
   public void execute(Tuple tuple) {
     MyMessage msg = (MyMessage) tuple.getValue(0);
     //RaceUtils.printMsg(msg, "[RealTimePayBolt]");
+    deal(msg);
     collector.ack(tuple);
+  }
+
+  private void deal(MyMessage msg) {
+
   }
 
   @Override

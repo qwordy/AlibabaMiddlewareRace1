@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.jstorm;
 
 import com.alibaba.middleware.race.RaceConfig;
+import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.Tair.TairOperatorImpl;
 
 import java.util.concurrent.BlockingQueue;
@@ -19,14 +20,15 @@ public class WriteTairThread implements Runnable {
   public WriteTairThread() {
     queue = new LinkedBlockingQueue<>(100000);
 
-//    tairOperator = new TairOperatorImpl(RaceConfig.TairConfigServer,
-//        RaceConfig.TairSalveConfigServer,
-//        RaceConfig.TairGroup, RaceConfig.TairNamespace);
-    tairOperator = new TairOperatorImpl();
+    tairOperator = new TairOperatorImpl(RaceConfig.TairConfigServer,
+        RaceConfig.TairSalveConfigServer,
+        RaceConfig.TairGroup, RaceConfig.TairNamespace);
+//    tairOperator = new TairOperatorImpl();
   }
 
   public void addPair(Pair pair) {
     try {
+      //RaceUtils.println("[PayRatioBolt] " + pair.key + ' ' + pair.value);
       queue.put(pair);
     } catch (Exception e) {
       e.printStackTrace();

@@ -95,8 +95,6 @@ public class PayRatioBolt implements IRichBolt {
         }
       }
     }
-
-    //RaceUtils.println(RaceConfig.prex_ratio + minuteTime + ' ' + data.ratio());
   }
 
   @Override
