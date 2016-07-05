@@ -22,6 +22,10 @@ public class PayRatioData {
   }
 
   public Double ratio() {
+    return p == 0 ? Double.MAX_VALUE : w / p;
+  }
+
+  public Double ratio2() {
     if (p == 0)
       return 1.79e+308;
     else

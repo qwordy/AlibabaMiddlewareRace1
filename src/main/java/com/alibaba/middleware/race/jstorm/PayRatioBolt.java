@@ -13,6 +13,7 @@ import com.alibaba.rocketmq.common.message.MessageExt;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by yfy on 7/4/16.
@@ -25,26 +26,26 @@ public class PayRatioBolt implements IRichBolt {
   // time, payRatioData
   private Map<Long, PayRatioData> map;
 
-  private TairOperatorImpl tairOperator;
+  private WriteTairThread writeTairThread;
 
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
     collector = outputCollector;
     this.map = new HashMap<>();
-    tairOperator = new TairOperatorImpl(RaceConfig.TairConfigServer,
-        RaceConfig.TairSalveConfigServer,
-        RaceConfig.TairGroup, RaceConfig.TairNamespace);
+
+    writeTairThread = new WriteTairThread();
+    new Thread(writeTairThread).start();
   }
 
   @Override
   public void execute(Tuple tuple) {
-    MessageExt msg = (MessageExt) tuple.getValue(0);
+    MyMessage msg = (MyMessage) tuple.getValue(0);
     //RaceUtils.printMsg(msg, "[PayRatioBolt]");
     deal(msg);
     collector.ack(tuple);
   }
 
-  private void deal(MessageExt msg) {
+  private void deal(MyMessage msg) {
     if (!msg.getTopic().equals(RaceConfig.MqPayTopic))
       return;
 
@@ -68,8 +69,8 @@ public class PayRatioBolt implements IRichBolt {
           data.addWireless(pm.getPayAmount());
         map.put(minuteTime, data);
       }
-      tairOperator.write(RaceConfig.prex_ratio + minuteTime, data.ratio());
       //RaceUtils.println(RaceConfig.prex_ratio + minuteTime + ' ' + data.ratio());
+      writeTairThread.addPair(new Pair(RaceConfig.prex_ratio + minuteTime, data.ratio()));
     }
   }
 

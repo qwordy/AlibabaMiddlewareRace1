@@ -1,9 +1,9 @@
 package com.alibaba.middleware.race;
 
+import com.alibaba.middleware.race.jstorm.MyMessage;
 import com.alibaba.middleware.race.jstorm.PayRatioData;
 import com.alibaba.middleware.race.model.OrderMessage;
 import com.alibaba.middleware.race.model.PaymentMessage;
-import com.alibaba.rocketmq.common.message.MessageExt;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -41,7 +41,7 @@ public class RaceUtils {
 
   private static PrintWriter pw;
 
-  public static synchronized void printMsg(MessageExt msg, String head) {
+  public static synchronized void printMsg(MyMessage msg, String head) {
     try {
       if (pw == null)
         pw = new PrintWriter("log");

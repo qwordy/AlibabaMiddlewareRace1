@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.Tair;
 
 import com.alibaba.middleware.race.RaceConfig;
+import com.alibaba.middleware.race.RaceUtils;
 import com.taobao.tair.DataEntry;
 import com.taobao.tair.Result;
 import com.taobao.tair.ResultCode;
@@ -37,9 +38,23 @@ public class TairOperatorImpl {
     this.namespace = namespace;
   }
 
+  public TairOperatorImpl() {}
+
   public boolean write(Serializable key, Serializable value) {
-    ResultCode code = manager.put(namespace, key, value);
-    return code.isSuccess();
+    ResultCode code;
+    while (true) {
+      code = manager.put(namespace, key, value);
+      if (code.isSuccess()) return true;
+    }
+  }
+
+  public void write2(Serializable key, Serializable value) {
+    try {
+      Thread.sleep(1000);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    //RaceUtils.println("[Tair] " + key + ' ' + value);
   }
 
   public Object get(Serializable key) {

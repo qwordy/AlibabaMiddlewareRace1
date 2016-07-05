@@ -13,13 +13,13 @@ import com.alibaba.middleware.race.RaceConfig;
 public class RaceTopology {
   public static void main(String[] args) {
     Config conf = new Config();
-    //conf.setNumWorkers(4);
+    conf.setNumWorkers(4);
 
     TopologyBuilder builder = new TopologyBuilder();
 
     builder.setSpout("spout", new MessageSpout(), 1);
     builder.setBolt("payRatio", new PayRatioBolt(), 1).shuffleGrouping("spout");
-    //builder.setBolt("realTimePay", new RealTimePayBolt(), 1).shuffleGrouping("spout");
+    builder.setBolt("realTimePay", new RealTimePayBolt(), 1).shuffleGrouping("spout");
 
 //    LocalCluster cluster = new LocalCluster();
 //    cluster.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());

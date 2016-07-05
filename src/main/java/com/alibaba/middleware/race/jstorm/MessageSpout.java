@@ -28,17 +28,19 @@ public class MessageSpout implements IRichSpout {
 
   private SpoutOutputCollector collector;
 
-  private BlockingQueue<MessageExt> queue;
+  private BlockingQueue<MyMessage> queue;
 
   @Override
   public void open(Map map, TopologyContext topologyContext,
                    SpoutOutputCollector spoutOutputCollector) {
     collector = spoutOutputCollector;
 
-    queue = new LinkedBlockingQueue<>(500);
+    queue = new LinkedBlockingQueue<>(100000);
 
     DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(RaceConfig.MetaConsumerGroup);
     consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+    consumer.setConsumeMessageBatchMaxSize(64);
+    consumer.setPullBatchSize(64);
 
     try {
       consumer.subscribe(RaceConfig.MqPayTopic, "*");
@@ -50,7 +52,8 @@ public class MessageSpout implements IRichSpout {
         public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
           try {
             for (MessageExt msg : list) {
-              queue.put(msg);
+              //RaceUtils.println("[msgListSize] " + list.size());
+              queue.put(new MyMessage(msg.getTopic(), msg.getBody()));
             }
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
           } catch (Exception e) {
@@ -69,7 +72,7 @@ public class MessageSpout implements IRichSpout {
   @Override
   public void nextTuple() {
     try {
-      MessageExt msg = queue.take();
+      MyMessage msg = queue.take();
       //RaceUtils.printMsg(msg, "[MessageSpout]");
       collector.emit(new Values(msg));
     } catch (Exception e) {
