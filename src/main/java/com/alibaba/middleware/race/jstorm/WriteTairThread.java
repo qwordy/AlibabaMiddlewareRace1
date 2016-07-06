@@ -4,7 +4,6 @@ import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.Tair.TairOperatorImpl;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -13,7 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class WriteTairThread implements Runnable {
 
-  private BlockingQueue<Pair> queue;
+  private LinkedBlockingQueue<Pair> queue;
 
   private TairOperatorImpl tairOperator;
 

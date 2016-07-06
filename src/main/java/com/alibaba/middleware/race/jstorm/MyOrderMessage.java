@@ -14,12 +14,16 @@ public class MyOrderMessage {
 
   public short platform;
 
-  public double price, hasPayedPrice;
+  public double remainPrice;
 
   public MyOrderMessage(short platform, double price) {
     //this.orderId = orderId;
     this.platform = platform;
-    this.price = price;
-    hasPayedPrice = 0;
+    this.remainPrice = price;
+  }
+
+  public boolean minusPrice(double price) {
+    remainPrice -= price;
+    return remainPrice <= 0;
   }
 }

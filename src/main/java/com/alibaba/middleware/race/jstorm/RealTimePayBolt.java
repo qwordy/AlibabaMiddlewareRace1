@@ -49,7 +49,7 @@ public class RealTimePayBolt implements IRichBolt {
       realTimePayThread.addPaymentMessage(pm);
     } else {
       OrderMessage om = RaceUtils.readKryoObject(OrderMessage.class, body);
-      realTimePayThread.addOrderMessage(om);
+      realTimePayThread.addOrderMessage(om, topic);
     }
 
   }

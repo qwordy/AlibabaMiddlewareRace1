@@ -8,7 +8,8 @@ import com.alibaba.middleware.race.RaceConfig;
 
 /**
  * Created by yfy on 7/2/16.
- * RaceTopology
+ * RaceTopology.
+ * Change pom.xml, topology, log, tair before submit
  */
 public class RaceTopology {
   public static void main(String[] args) {
