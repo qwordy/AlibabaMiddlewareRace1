@@ -23,7 +23,7 @@ public class PayRatioBolt implements IRichBolt {
   // time, payRatioData
   private TreeMap<Long, PayRatioData> map;
 
-  private WriteTairThread writeTairThread;
+  //private WriteTairThread writeTairThread;
 
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {

@@ -40,7 +40,7 @@ public class TairOperatorImpl {
 
   public TairOperatorImpl() {}
 
-  public boolean write0(Serializable key, Serializable value) {
+  public boolean write(Serializable key, Serializable value) {
     ResultCode code;
     for (int i = 0; i < 20; i++) {
       code = manager.put(namespace, key, value);
@@ -49,13 +49,13 @@ public class TairOperatorImpl {
     return false;
   }
 
-  public void write(Serializable key, Serializable value) {
+  public void write2(Serializable key, Serializable value) {
     try {
       Thread.sleep(1000);
     } catch (Exception e) {
       e.printStackTrace();
     }
-    RaceUtils.println("[Tair] " + key + ' ' + value);
+    //RaceUtils.println("[Tair] " + key + ' ' + value);
   }
 
   public Object get(Serializable key) {

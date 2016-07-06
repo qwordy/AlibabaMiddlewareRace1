@@ -31,13 +31,13 @@ public class RealTimePendingPayThread implements Runnable {
 
   @Override
   public void run() {
-    try {
-      while (true) {
+    while (true) {
+      try {
         PaymentMessage pm = payQueue.take();
         realTimePayThread.dealPaymentMessage(pm);
+      } catch (Exception e) {
+        e.printStackTrace();
       }
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 }

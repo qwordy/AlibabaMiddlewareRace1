@@ -26,16 +26,17 @@ public class RealTimePayWriteTairThread implements Runnable {
 
   @Override
   public void run() {
-    try {
-      Thread.sleep(30000);
-
-      for (long key : map.keySet()) {
-        RealTimePayData data = map.get(key);
-        tairOperator.write(RaceConfig.prex_taobao + key, data.taobao);
-        tairOperator.write(RaceConfig.prex_tmall + key, data.tmall);
+    while (true) {
+      try {
+        Thread.sleep(30000);
+        for (long key : map.keySet()) {
+          RealTimePayData data = map.get(key);
+          tairOperator.write(RaceConfig.prex_taobao + key, data.taobao);
+          tairOperator.write(RaceConfig.prex_tmall + key, data.tmall);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
       }
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 }

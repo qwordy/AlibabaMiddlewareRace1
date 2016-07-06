@@ -48,7 +48,7 @@ public class RealTimePayThread implements Runnable {
   }
 
   public void addOrderMessage(OrderMessage om, String topic) {
-    while (orderMap.size() >= MAX_SIZE);
+    while (orderMap.size() >= MAX_SIZE) ;
     //RaceUtils.println("[RealTimePayBolt] addOrder " + om.toString());
     short platform = topic.equals(RaceConfig.MqTaobaoTradeTopic) ?
         MyOrderMessage.TAOBAO : MyOrderMessage.TMALL;
@@ -75,7 +75,7 @@ public class RealTimePayThread implements Runnable {
         data.addTmall(payAmount);
 
       resultMap.put(minuteTime, data);
-      RaceUtils.println("[ReadTimePayBolt] put " + minuteTime + ' ' + data.toString());
+      //RaceUtils.println("[ReadTimePayBolt] put " + minuteTime + ' ' + data.toString());
 
       if (om.minusPrice(payAmount))
         orderMap.remove(orderId);
@@ -86,15 +86,14 @@ public class RealTimePayThread implements Runnable {
 
   @Override
   public void run() {
-    try {
-      while (true) {
+    while (true) {
+      try {
         //RaceUtils.println("[RealTimePayThread] take pay");
         PaymentMessage pm = payQueue.take();
-        //RaceUtils.println("[RealTimePayThread] take pay success " + pm.toString());
         dealPaymentMessage(pm);
+      } catch (Exception e) {
+        e.printStackTrace();
       }
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 }
