@@ -26,4 +26,8 @@ public class RealTimePayData {
     tmall += amount;
   }
 
+  @Override
+  public String toString() {
+    return taobao + " " + tmall;
+  }
 }

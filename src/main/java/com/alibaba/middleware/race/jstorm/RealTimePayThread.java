@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.jstorm;
 
 import com.alibaba.middleware.race.RaceConfig;
+import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.model.OrderMessage;
 import com.alibaba.middleware.race.model.PaymentMessage;
 
@@ -15,7 +16,7 @@ public class RealTimePayThread implements Runnable {
 
   private LinkedBlockingQueue<PaymentMessage> payQueue;
 
-  private final int ORDER_MAP_MAX_SIZE = 100000;
+  private final int MAX_SIZE = 1000;
 
   // history orders
   // orderId, myOrderMessage
@@ -27,7 +28,7 @@ public class RealTimePayThread implements Runnable {
   private RealTimePendingPayThread realTimePendingPayThread;
 
   public RealTimePayThread() {
-    payQueue = new LinkedBlockingQueue<>(100000);
+    payQueue = new LinkedBlockingQueue<>(MAX_SIZE);
     orderMap = new ConcurrentHashMap<>();
   }
 
@@ -40,14 +41,16 @@ public class RealTimePayThread implements Runnable {
   }
 
   public void addOrderMessage(OrderMessage om, String topic) {
-    if (orderMap.size() < ORDER_MAP_MAX_SIZE) {
-      short platform = topic.equals(RaceConfig.MqTaobaoTradeTopic) ?
-          MyOrderMessage.TAOBAO : MyOrderMessage.TMALL;
-      orderMap.put(om.getOrderId(), new MyOrderMessage(platform, om.getTotalPrice()));
-    }
+    while (orderMap.size() >= MAX_SIZE);
+    RaceUtils.println("[RealTimePayBolt] addOrder " + om.toString());
+    short platform = topic.equals(RaceConfig.MqTaobaoTradeTopic) ?
+        MyOrderMessage.TAOBAO : MyOrderMessage.TMALL;
+    orderMap.put(om.getOrderId(), new MyOrderMessage(platform, om.getTotalPrice()));
   }
 
   public void dealPaymentMessage(PaymentMessage pm) {
+    RaceUtils.println("[RealTimePayBolt] dealPay " + pm.toString());
+
     long orderId = pm.getOrderId();
     MyOrderMessage om = orderMap.get(orderId);
 
@@ -65,6 +68,7 @@ public class RealTimePayThread implements Runnable {
         data.addTmall(payAmount);
 
       resultMap.put(minuteTime, data);
+      RaceUtils.println("[ReadTimePayBolt] put " + minuteTime + ' ' + data.toString());
 
       if (om.minusPrice(payAmount))
         orderMap.remove(orderId);

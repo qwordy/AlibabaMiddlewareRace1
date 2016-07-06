@@ -22,7 +22,7 @@ public class MyOrderMessage {
     this.remainPrice = price;
   }
 
-  public boolean minusPrice(double price) {
+  public synchronized boolean minusPrice(double price) {
     remainPrice -= price;
     return remainPrice <= 0;
   }
