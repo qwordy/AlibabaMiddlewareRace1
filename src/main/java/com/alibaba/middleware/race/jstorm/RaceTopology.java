@@ -5,6 +5,7 @@ import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.topology.TopologyBuilder;
 import com.alibaba.middleware.race.RaceConfig;
+import com.alibaba.middleware.race.RaceUtils;
 
 /**
  * Created by yfy on 7/2/16.
@@ -22,6 +23,7 @@ public class RaceTopology {
     builder.setBolt("payRatio", new PayRatioBolt(), 1).shuffleGrouping("spout");
     builder.setBolt("realTimePay", new RealTimePayBolt(), 1).shuffleGrouping("spout");
 
+    RaceUtils.initLog();
     LocalCluster cluster = new LocalCluster();
     cluster.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
 

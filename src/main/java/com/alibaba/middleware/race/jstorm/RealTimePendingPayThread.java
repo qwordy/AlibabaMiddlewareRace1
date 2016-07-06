@@ -1,5 +1,6 @@
 package com.alibaba.middleware.race.jstorm;
 
+import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.model.PaymentMessage;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -21,6 +22,7 @@ public class RealTimePendingPayThread implements Runnable {
 
   public void addPaymentMessage(PaymentMessage pm) {
     try {
+      //RaceUtils.println("[RealTimePayBolt] addPendingPay " + pm.toString());
       payQueue.put(pm);
     } catch (Exception e) {
       e.printStackTrace();

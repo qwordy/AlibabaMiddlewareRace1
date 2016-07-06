@@ -30,8 +30,10 @@ public class PayRatioBolt implements IRichBolt {
     collector = outputCollector;
     this.map = new TreeMap<>();
 
-    writeTairThread = new WriteTairThread();
-    new Thread(writeTairThread).start();
+//    writeTairThread = new WriteTairThread();
+//    new Thread(writeTairThread).start();
+
+    new Thread(new PayRatioWriteTairThread(map)).start();
   }
 
   @Override
@@ -52,10 +54,16 @@ public class PayRatioBolt implements IRichBolt {
 
     PaymentMessage pm = RaceUtils.readKryoObject(PaymentMessage.class, body);
     long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
-    PayRatioData data = map.get(minuteTime);
+    PayRatioData data;
+    synchronized (map) {
+       data = map.get(minuteTime);
+    }
 
     if (data == null) {
-      Map.Entry<Long, PayRatioData> entry = map.lowerEntry(minuteTime);
+      Map.Entry<Long, PayRatioData> entry;
+      synchronized (map) {
+        entry = map.lowerEntry(minuteTime);
+      }
       if (entry == null)
         data = new PayRatioData();
       else
@@ -64,33 +72,43 @@ public class PayRatioBolt implements IRichBolt {
 
     if (pm.getPayPlatform() == 0) {  // pc
       data.addPc(pm.getPayAmount());
-      map.put(minuteTime, data);
-      writeTairThread.addPair(new Pair(RaceConfig.prex_ratio + minuteTime, data.ratio()));
+      synchronized (map) {
+        map.put(minuteTime, data);
+      }
+      //writeTairThread.addPair(new Pair(RaceConfig.prex_ratio + minuteTime, data.ratio()));
       long time = minuteTime;
       while (true) {  // add later minute pay sum
-        Map.Entry<Long, PayRatioData> entry = map.higherEntry(time);
+        Map.Entry<Long, PayRatioData> entry;
+        synchronized (map) {
+          entry = map.higherEntry(time);
+        }
         if (entry == null) {
           break;
         } else {
           entry.getValue().addPc(pm.getPayAmount());
-          writeTairThread.addPair(
-              new Pair(RaceConfig.prex_ratio + time, entry.getValue().ratio()));
+          //writeTairThread.addPair(
+          //    new Pair(RaceConfig.prex_ratio + time, entry.getValue().ratio()));
           time = entry.getKey();
         }
       }
     } else {  // wireless
       data.addWireless(pm.getPayAmount());
-      map.put(minuteTime, data);
-      writeTairThread.addPair(new Pair(RaceConfig.prex_ratio + minuteTime, data.ratio()));
+      synchronized (map) {
+        map.put(minuteTime, data);
+      }
+      //writeTairThread.addPair(new Pair(RaceConfig.prex_ratio + minuteTime, data.ratio()));
       long time = minuteTime;
       while (true) {
-        Map.Entry<Long, PayRatioData> entry = map.higherEntry(time);
+        Map.Entry<Long, PayRatioData> entry;
+        synchronized (map) {
+          entry = map.higherEntry(time);
+        }
         if (entry == null) {
           break;
         } else {
           entry.getValue().addWireless(pm.getPayAmount());
-          writeTairThread.addPair(
-              new Pair(RaceConfig.prex_ratio + time, entry.getValue().ratio()));
+//          writeTairThread.addPair(
+//              new Pair(RaceConfig.prex_ratio + time, entry.getValue().ratio()));
           time = entry.getKey();
         }
       }

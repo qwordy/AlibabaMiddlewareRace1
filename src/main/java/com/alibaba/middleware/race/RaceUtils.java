@@ -8,6 +8,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Map;
 
@@ -39,15 +41,17 @@ public class RaceUtils {
     return ret;
   }
 
-  private static PrintWriter pw;
+  public static PrintWriter pw;
 
-  public static synchronized void printMsg(MyMessage msg, String head) {
+  public static void initLog() {
     try {
-      if (pw == null)
-        pw = new PrintWriter("log");
+      pw = new PrintWriter("log");
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  public static synchronized void printMsg(MyMessage msg, String head) {
     pw.print(head + ' ');
     byte[] body = msg.getBody();
     if (body.length == 2 && body[0] == 0 && body[1] == 0) {
@@ -63,12 +67,6 @@ public class RaceUtils {
   }
 
   public static synchronized void printPayRatio(Map<Long, PayRatioData> map) {
-    try {
-      if (pw == null)
-        pw = new PrintWriter("log");
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
     pw.println("[ratio] map size " + map.size());
     for (long key : map.keySet()) {
       PayRatioData value = map.get(key);
@@ -78,12 +76,6 @@ public class RaceUtils {
   }
 
   public static synchronized void println(Object o) {
-    try {
-      if (pw == null)
-        pw = new PrintWriter("log");
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
     pw.println(o);
     pw.flush();
   }

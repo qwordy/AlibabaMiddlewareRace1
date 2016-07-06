@@ -16,7 +16,7 @@ public class RealTimePayThread implements Runnable {
 
   private LinkedBlockingQueue<PaymentMessage> payQueue;
 
-  private final int MAX_SIZE = 1000;
+  private final int MAX_SIZE = 100000;
 
   // history orders
   // orderId, myOrderMessage
@@ -30,11 +30,18 @@ public class RealTimePayThread implements Runnable {
   public RealTimePayThread() {
     payQueue = new LinkedBlockingQueue<>(MAX_SIZE);
     orderMap = new ConcurrentHashMap<>();
+    resultMap = new ConcurrentHashMap<>();
+
+    realTimePendingPayThread = new RealTimePendingPayThread(this);
+    new Thread(realTimePendingPayThread).start();
+
+    new Thread(new RealTimePayWriteTairThread(resultMap)).start();
   }
 
   public void addPaymentMessage(PaymentMessage pm) {
     try {
       payQueue.put(pm);
+      //RaceUtils.println("[RealTimePayBolt] addPay " + pm.toString());
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -42,14 +49,14 @@ public class RealTimePayThread implements Runnable {
 
   public void addOrderMessage(OrderMessage om, String topic) {
     while (orderMap.size() >= MAX_SIZE);
-    RaceUtils.println("[RealTimePayBolt] addOrder " + om.toString());
+    //RaceUtils.println("[RealTimePayBolt] addOrder " + om.toString());
     short platform = topic.equals(RaceConfig.MqTaobaoTradeTopic) ?
         MyOrderMessage.TAOBAO : MyOrderMessage.TMALL;
     orderMap.put(om.getOrderId(), new MyOrderMessage(platform, om.getTotalPrice()));
   }
 
   public void dealPaymentMessage(PaymentMessage pm) {
-    RaceUtils.println("[RealTimePayBolt] dealPay " + pm.toString());
+    //RaceUtils.println("[RealTimePayBolt] dealPay " + pm.toString());
 
     long orderId = pm.getOrderId();
     MyOrderMessage om = orderMap.get(orderId);
@@ -79,12 +86,11 @@ public class RealTimePayThread implements Runnable {
 
   @Override
   public void run() {
-    realTimePendingPayThread = new RealTimePendingPayThread(this);
-    new Thread(realTimePendingPayThread).start();
-
     try {
       while (true) {
+        //RaceUtils.println("[RealTimePayThread] take pay");
         PaymentMessage pm = payQueue.take();
+        //RaceUtils.println("[RealTimePayThread] take pay success " + pm.toString());
         dealPaymentMessage(pm);
       }
     } catch (Exception e) {
