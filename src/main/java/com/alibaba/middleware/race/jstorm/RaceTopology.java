@@ -23,14 +23,14 @@ public class RaceTopology {
     builder.setBolt("payRatio", new PayRatioBolt(), 1).shuffleGrouping("spout");
     builder.setBolt("realTimePay", new RealTimePayBolt(), 1).shuffleGrouping("spout");
 
-//    RaceUtils.initLog();
-//    LocalCluster cluster = new LocalCluster();
-//    cluster.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
+    RaceUtils.initLog();
+    LocalCluster cluster = new LocalCluster();
+    cluster.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
 
-    try {
-      StormSubmitter.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+//    try {
+//      StormSubmitter.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    }
   }
 }

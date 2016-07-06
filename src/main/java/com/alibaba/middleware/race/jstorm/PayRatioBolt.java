@@ -21,19 +21,19 @@ public class PayRatioBolt implements IRichBolt {
   private OutputCollector collector;
 
   // time, payRatioData
-  private TreeMap<Long, PayRatioData> map;
+  private TreeMap<Long, PayRatioData> resultMap;
 
   //private WriteTairThread writeTairThread;
 
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
     collector = outputCollector;
-    this.map = new TreeMap<>();
+    resultMap = new TreeMap<>();
 
 //    writeTairThread = new WriteTairThread();
 //    new Thread(writeTairThread).start();
 
-    new Thread(new PayRatioWriteTairThread(map)).start();
+    new Thread(new PayRatioWriteTairThread(resultMap)).start();
   }
 
   @Override
@@ -55,14 +55,14 @@ public class PayRatioBolt implements IRichBolt {
     PaymentMessage pm = RaceUtils.readKryoObject(PaymentMessage.class, body);
     long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
     PayRatioData data;
-    synchronized (map) {
-       data = map.get(minuteTime);
+    synchronized (resultMap) {
+       data = resultMap.get(minuteTime);
     }
 
     if (data == null) {
       Map.Entry<Long, PayRatioData> entry;
-      synchronized (map) {
-        entry = map.lowerEntry(minuteTime);
+      synchronized (resultMap) {
+        entry = resultMap.lowerEntry(minuteTime);
       }
       if (entry == null)
         data = new PayRatioData();
@@ -72,15 +72,15 @@ public class PayRatioBolt implements IRichBolt {
 
     if (pm.getPayPlatform() == 0) {  // pc
       data.addPc(pm.getPayAmount());
-      synchronized (map) {
-        map.put(minuteTime, data);
+      synchronized (resultMap) {
+        resultMap.put(minuteTime, data);
       }
       //writeTairThread.addPair(new Pair(RaceConfig.prex_ratio + minuteTime, data.ratio()));
       long time = minuteTime;
       while (true) {  // add later minute pay sum
         Map.Entry<Long, PayRatioData> entry;
-        synchronized (map) {
-          entry = map.higherEntry(time);
+        synchronized (resultMap) {
+          entry = resultMap.higherEntry(time);
         }
         if (entry == null) {
           break;
@@ -93,15 +93,15 @@ public class PayRatioBolt implements IRichBolt {
       }
     } else {  // wireless
       data.addWireless(pm.getPayAmount());
-      synchronized (map) {
-        map.put(minuteTime, data);
+      synchronized (resultMap) {
+        resultMap.put(minuteTime, data);
       }
       //writeTairThread.addPair(new Pair(RaceConfig.prex_ratio + minuteTime, data.ratio()));
       long time = minuteTime;
       while (true) {
         Map.Entry<Long, PayRatioData> entry;
-        synchronized (map) {
-          entry = map.higherEntry(time);
+        synchronized (resultMap) {
+          entry = resultMap.higherEntry(time);
         }
         if (entry == null) {
           break;

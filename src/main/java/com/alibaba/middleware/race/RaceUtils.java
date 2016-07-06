@@ -76,7 +76,7 @@ public class RaceUtils {
   }
 
   public static synchronized void println(Object o) {
-    pw.println(o);
+    pw.println(o + " " + System.currentTimeMillis());
     pw.flush();
   }
 }
