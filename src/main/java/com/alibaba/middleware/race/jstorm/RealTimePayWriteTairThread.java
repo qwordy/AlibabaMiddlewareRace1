@@ -20,10 +20,10 @@ public class RealTimePayWriteTairThread implements Runnable {
   public RealTimePayWriteTairThread(ConcurrentHashMap<Long, RealTimePayData> map) {
     this.map = map;
 
-//    tairOperator = new TairOperatorImpl(RaceConfig.TairConfigServer,
-//        RaceConfig.TairSalveConfigServer,
-//        RaceConfig.TairGroup, RaceConfig.TairNamespace);
-    tairOperator = new TairOperatorImpl();
+    tairOperator = new TairOperatorImpl(RaceConfig.TairConfigServer,
+        RaceConfig.TairSalveConfigServer,
+        RaceConfig.TairGroup, RaceConfig.TairNamespace);
+//    tairOperator = new TairOperatorImpl();
   }
 
   @Override
@@ -33,8 +33,8 @@ public class RealTimePayWriteTairThread implements Runnable {
         Thread.sleep(10000);
         for (long key : map.keySet()) {
           RealTimePayData data = map.get(key);
-          tairOperator.write(RaceConfig.prex_taobao + key, data.taobao);
-          tairOperator.write(RaceConfig.prex_tmall + key, data.tmall);
+          tairOperator.write(RaceConfig.prex_taobao + key, data.getTaobao());
+          tairOperator.write(RaceConfig.prex_tmall + key, data.getTmall());
         }
       } catch (Exception e) {
         e.printStackTrace();

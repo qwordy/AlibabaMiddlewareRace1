@@ -19,10 +19,10 @@ public class PayRatioWriteTairThread implements Runnable {
   public PayRatioWriteTairThread(Map<Long, PayRatioData> map) {
     this.map = map;
 
-//    tairOperator = new TairOperatorImpl(RaceConfig.TairConfigServer,
-//        RaceConfig.TairSalveConfigServer,
-//        RaceConfig.TairGroup, RaceConfig.TairNamespace);
-    tairOperator = new TairOperatorImpl();
+    tairOperator = new TairOperatorImpl(RaceConfig.TairConfigServer,
+        RaceConfig.TairSalveConfigServer,
+        RaceConfig.TairGroup, RaceConfig.TairNamespace);
+//    tairOperator = new TairOperatorImpl();
   }
 
   @Override

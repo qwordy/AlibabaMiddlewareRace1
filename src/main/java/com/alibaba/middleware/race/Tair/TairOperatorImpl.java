@@ -28,7 +28,8 @@ public class TairOperatorImpl {
                           int namespace) {
     List<String> configServerList = new ArrayList<>();
     configServerList.add(masterConfigServer);
-    configServerList.add(slaveConfigServer);
+    if (slaveConfigServer != null)
+      configServerList.add(slaveConfigServer);
 
     manager = new DefaultTairManager();
     manager.setConfigServerList(configServerList);
@@ -38,9 +39,10 @@ public class TairOperatorImpl {
     this.namespace = namespace;
   }
 
-  public TairOperatorImpl() {}
+  public TairOperatorImpl() {
+  }
 
-  public boolean write0(Serializable key, Serializable value) {
+  public boolean write(Serializable key, Serializable value) {
     ResultCode code;
     for (int i = 0; i < 20; i++) {
       code = manager.put(namespace, key, value);
@@ -49,7 +51,7 @@ public class TairOperatorImpl {
     return false;
   }
 
-  public void write(Serializable key, Serializable value) {
+  public void write3(Serializable key, Serializable value) {
     try {
       Thread.sleep(1000);
     } catch (Exception e) {
@@ -82,16 +84,20 @@ public class TairOperatorImpl {
 
   //天猫的分钟交易额写入tair
   public static void main(String[] args) throws Exception {
-    TairOperatorImpl tairOperator = new TairOperatorImpl(RaceConfig.TairConfigServer,
-        RaceConfig.TairSalveConfigServer,
-        RaceConfig.TairGroup, RaceConfig.TairNamespace);
+    TairOperatorImpl tairOperator = new TairOperatorImpl("192.168.1.59:5198", null, "group_1", 0);
+
     //假设这是付款时间
     Long millisTime = System.currentTimeMillis();
     //由于整分时间戳是10位数，所以需要转换成整分时间戳
     Long minuteTime = (millisTime / 1000 / 60) * 60;
     //假设这一分钟的交易额是100;
-    Double money = 100.0;
+    double money = 100.0;
+    String key = RaceConfig.prex_tmall + minuteTime;
+    tairOperator.remove(key);
     //写入tair
-    tairOperator.write(RaceConfig.prex_tmall + minuteTime, money);
+    tairOperator.write(key, money);
+
+    double value = (double) tairOperator.get(key);
+    System.out.println(value);
   }
 }

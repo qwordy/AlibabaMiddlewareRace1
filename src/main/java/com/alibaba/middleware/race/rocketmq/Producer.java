@@ -44,7 +44,7 @@ public class Producer {
 
     for (int i = 0; i < count; i++) {
       try {
-        Thread.sleep(10);
+        //Thread.sleep(10);
         final int platform = rand.nextInt(2);
         final OrderMessage orderMessage = (platform == 0 ? OrderMessage.createTbaoMessage() : OrderMessage.createTmallMessage());
         orderMessage.setCreateTime(System.currentTimeMillis());

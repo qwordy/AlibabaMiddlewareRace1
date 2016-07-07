@@ -56,12 +56,11 @@ public class RealTimePayThread implements Runnable {
   }
 
   public void dealPaymentMessage(PaymentMessage pm) {
-    //RaceUtils.println("[RealTimePayBolt] dealPay " + pm.toString());
-
     long orderId = pm.getOrderId();
     MyOrderMessage om = orderMap.get(orderId);
 
     if (om != null) {
+      //RaceUtils.println("[RealTimePayBolt] dealPay " + pm.toString());
       double payAmount = pm.getPayAmount();
       long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
 

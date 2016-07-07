@@ -6,7 +6,7 @@ package com.alibaba.middleware.race.jstorm;
  */
 public class RealTimePayData {
 
-  public double taobao, tmall;
+  private double taobao, tmall;
 
   public RealTimePayData(double taobao, double tmall) {
     this.taobao = taobao;
@@ -24,6 +24,14 @@ public class RealTimePayData {
 
   public void addTmall(double amount) {
     tmall += amount;
+  }
+
+  public Double getTaobao() {
+    return taobao;
+  }
+
+  public Double getTmall() {
+    return tmall;
   }
 
   @Override
