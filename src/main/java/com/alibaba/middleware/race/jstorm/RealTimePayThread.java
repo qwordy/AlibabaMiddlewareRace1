@@ -7,6 +7,7 @@ import com.alibaba.middleware.race.model.PaymentMessage;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by yfy on 7/6/16.
@@ -26,6 +27,8 @@ public class RealTimePayThread implements Runnable {
   private ConcurrentHashMap<Long, RealTimePayData> resultMap;
 
   private RealTimePendingPayThread realTimePendingPayThread;
+
+  private AtomicInteger payCount = new AtomicInteger();
 
   public RealTimePayThread() {
     payQueue = new LinkedBlockingQueue<>(MAX_SIZE);
@@ -76,6 +79,7 @@ public class RealTimePayThread implements Runnable {
     MyOrderMessage om = orderMap.get(orderId);
 
     if (om != null) {
+      System.out.println("[RealTime] payCount " + payCount.incrementAndGet());
       //RaceUtils.println("[RealTimePayBolt] dealPay " + pm.toString());
       double payAmount = pm.getPayAmount();
       long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;

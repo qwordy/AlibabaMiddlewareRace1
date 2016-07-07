@@ -30,7 +30,7 @@ public class MessageSpout implements IRichSpout {
 
   private BlockingQueue<MyMessage> queue;
 
-  private final int MAX_SIZE = 100000;
+  private final int MAX_SIZE = 1000000;
 
   @Override
   public void open(Map map, TopologyContext topologyContext,

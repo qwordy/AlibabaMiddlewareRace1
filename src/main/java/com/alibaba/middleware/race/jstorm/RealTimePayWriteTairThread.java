@@ -20,8 +20,8 @@ public class RealTimePayWriteTairThread implements Runnable {
   public RealTimePayWriteTairThread(ConcurrentHashMap<Long, RealTimePayData> map) {
     this.map = map;
 
-    tairOperator = TairOperatorImpl.getRaceTairOperator();
-//    tairOperator = new TestTairOperator();
+//    tairOperator = TairOperatorImpl.getRaceTairOperator();
+    tairOperator = new TestTairOperator();
   }
 
   @Override

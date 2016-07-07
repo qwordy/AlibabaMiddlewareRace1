@@ -28,10 +28,8 @@ public class PayRatioWriteTairThread implements Runnable {
     while (true) {
       try {
         Thread.sleep(10000);
-        synchronized (map) {
-          for (long key : map.keySet())
-            tairOperator.write(RaceConfig.prex_ratio + key, map.get(key).ratio());
-        }
+        for (long key : map.keySet())
+          tairOperator.write(RaceConfig.prex_ratio + key, map.get(key).ratio());
       } catch (Exception e) {
         e.printStackTrace();
       }
