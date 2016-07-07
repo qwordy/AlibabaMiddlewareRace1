@@ -16,7 +16,7 @@ public class RealTimePayThread implements Runnable {
 
   private LinkedBlockingQueue<PaymentMessage> payQueue;
 
-  private final int MAX_SIZE = 100000;
+  private final int MAX_SIZE = 10000000;
 
   // history orders
   // orderId, myOrderMessage
@@ -48,14 +48,30 @@ public class RealTimePayThread implements Runnable {
   }
 
   public void addOrderMessage(OrderMessage om, String topic) {
-    while (orderMap.size() >= MAX_SIZE) ;
-    //RaceUtils.println("[RealTimePayBolt] addOrder " + om.toString());
+    while (orderMap.size() >= MAX_SIZE) {
+      synchronized (orderMap) {
+        try {
+          //RaceUtils.println("[RealTimePayBolt] addOrderWait");
+          orderMap.wait();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    }
+    //RaceUtils.println("[RealTimePayBolt] addOrderWaitEnd");
     short platform = topic.equals(RaceConfig.MqTaobaoTradeTopic) ?
         MyOrderMessage.TAOBAO : MyOrderMessage.TMALL;
     orderMap.put(om.getOrderId(), new MyOrderMessage(platform, om.getTotalPrice()));
+    //RaceUtils.println("[RealTimePayBolt] addOrder " + om.toString());
   }
 
   public void dealPaymentMessage(PaymentMessage pm) {
+//    try {
+//      Thread.sleep(100);
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    }
+
     long orderId = pm.getOrderId();
     MyOrderMessage om = orderMap.get(orderId);
 
@@ -76,8 +92,12 @@ public class RealTimePayThread implements Runnable {
       resultMap.put(minuteTime, data);
       //RaceUtils.println("[ReadTimePayBolt] put " + minuteTime + ' ' + data.toString());
 
-      if (om.minusPrice(payAmount))
-        orderMap.remove(orderId);
+      if (om.minusPrice(payAmount)) {
+          orderMap.remove(orderId);
+        synchronized (orderMap) {
+          orderMap.notify();
+        }
+      }
     } else {
       realTimePendingPayThread.addPaymentMessage(pm);
     }

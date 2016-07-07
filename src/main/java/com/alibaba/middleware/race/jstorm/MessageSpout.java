@@ -30,12 +30,14 @@ public class MessageSpout implements IRichSpout {
 
   private BlockingQueue<MyMessage> queue;
 
+  private final int MAX_SIZE = 100000;
+
   @Override
   public void open(Map map, TopologyContext topologyContext,
                    SpoutOutputCollector spoutOutputCollector) {
     collector = spoutOutputCollector;
 
-    queue = new LinkedBlockingQueue<>(100000);
+    queue = new LinkedBlockingQueue<>(MAX_SIZE);
 
     DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(RaceConfig.MetaConsumerGroup);
     consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);

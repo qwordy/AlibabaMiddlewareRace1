@@ -46,7 +46,6 @@ public class Consumer {
       public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs,
                                                       ConsumeConcurrentlyContext context) {
         System.out.println("consumeMessage" + msgs.size());
-        //try {Thread.sleep(1000);}catch(Exception e){}
 
         for (MessageExt msg : msgs) {
 

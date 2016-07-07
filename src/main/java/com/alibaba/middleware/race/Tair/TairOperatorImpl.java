@@ -39,7 +39,13 @@ public class TairOperatorImpl {
     this.namespace = namespace;
   }
 
-  public TairOperatorImpl() {
+  public TairOperatorImpl() {}
+
+  // tair operator with race config
+  public static TairOperatorImpl getRaceTairOperator() {
+    return new TairOperatorImpl(RaceConfig.TairConfigServer,
+        RaceConfig.TairSalveConfigServer,
+        RaceConfig.TairGroup, RaceConfig.TairNamespace);
   }
 
   public boolean write(Serializable key, Serializable value) {
@@ -49,15 +55,6 @@ public class TairOperatorImpl {
       if (code.isSuccess()) return true;
     }
     return false;
-  }
-
-  public void write3(Serializable key, Serializable value) {
-    try {
-      Thread.sleep(1000);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    RaceUtils.println("[Tair] " + key + ' ' + value);
   }
 
   public Object get(Serializable key) {
@@ -95,7 +92,9 @@ public class TairOperatorImpl {
     String key = RaceConfig.prex_tmall + minuteTime;
     tairOperator.remove(key);
     //写入tair
+    System.out.println(System.currentTimeMillis());
     tairOperator.write(key, money);
+    System.out.println(System.currentTimeMillis());
 
     double value = (double) tairOperator.get(key);
     System.out.println(value);
