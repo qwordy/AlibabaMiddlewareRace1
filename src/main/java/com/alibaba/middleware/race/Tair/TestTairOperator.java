@@ -14,7 +14,7 @@ public class TestTairOperator extends TairOperatorImpl {
 
   @Override
   public boolean write(Serializable key, Serializable value) {
-    RaceUtils.println("[Tair] " + key + ' ' + value);
+    System.out.println("[Tair] " + key + ' ' + value);
     return true;
   }
 }

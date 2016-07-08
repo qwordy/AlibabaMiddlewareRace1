@@ -45,15 +45,26 @@ public class RatioBolt implements IRichBolt {
     new Thread(new RatioTairThread(resultMap)).start();
   }
 
+  private void writeTair() {
+    //RaceUtils.println("[Ratio] writeTair");
+  }
+
   @Override
   public void execute(Tuple tuple) {
-    MyMessage msg = (MyMessage) tuple.getValue(0);
+//    if (tuple.getSourceComponent().equals(Constants.SYSTEM_COMPONENT_ID) &&
+//        tuple.getSourceStreamId().equals(Constants.SYSTEM_TICK_STREAM_ID)) {
+//      writeTair();
+//      return;
+//    }
+
+    System.out.println((String)tuple.getValue(0));
+    //MyMessage22 msg = (MyMessage22) tuple.getValue(0);
     //RaceUtils.printMsg(msg, "[RatioBolt]");
-    deal(msg);
+    //deal(msg);
     collector.ack(tuple);
   }
 
-  private void deal(MyMessage msg) {
+  private void deal(MyMessage22 msg) {
     if (!msg.getTopic().equals(RaceConfig.MqPayTopic))
       return;
 
@@ -126,6 +137,10 @@ public class RatioBolt implements IRichBolt {
 
   @Override
   public Map<String, Object> getComponentConfiguration() {
+//    Map<String, Object> conf = new Config();
+//    conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 10);
+//    return conf;
+
     return null;
   }
 }

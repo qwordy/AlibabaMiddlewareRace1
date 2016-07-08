@@ -32,13 +32,13 @@ public class PlatformBolt implements IRichBolt {
 
   @Override
   public void execute(Tuple tuple) {
-    MyMessage msg = (MyMessage) tuple.getValue(0);
+    MyMessage22 msg = (MyMessage22) tuple.getValue(0);
     //RaceUtils.printMsg(msg, "[PlatformBolt]");
     deal(msg);
     collector.ack(tuple);
   }
 
-  private void deal(MyMessage msg) {
+  private void deal(MyMessage22 msg) {
     byte[] body = msg.getBody();
     if (body.length == 2 && body[0] == 0 && body[1] == 0)
       return;

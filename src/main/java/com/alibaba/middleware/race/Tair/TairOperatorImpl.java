@@ -94,9 +94,11 @@ public class TairOperatorImpl {
     //写入tair
     System.out.println(System.currentTimeMillis());
     tairOperator.write(key, money);
+    tairOperator.write("k1", 666);
     System.out.println(System.currentTimeMillis());
 
     double value = (double) tairOperator.get(key);
     System.out.println(value);
+    System.out.println(tairOperator.get("k1"));
   }
 }

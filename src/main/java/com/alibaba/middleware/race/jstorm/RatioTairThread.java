@@ -19,8 +19,8 @@ public class RatioTairThread implements Runnable {
   public RatioTairThread(Map<Long, RatioData> map) {
     this.map = map;
 
-    tairOperator = TairOperatorImpl.getRaceTairOperator();
-//    tairOperator = new TestTairOperator();
+//    tairOperator = TairOperatorImpl.getRaceTairOperator();
+    tairOperator = new TestTairOperator();
   }
 
   @Override

@@ -7,7 +7,6 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import com.alibaba.middleware.race.RaceConfig;
-import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.rocketmq.client.consumer.DefaultMQPushConsumer;
 import com.alibaba.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import com.alibaba.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -29,11 +28,11 @@ public class MessageSpout implements IRichSpout {
 
   private SpoutOutputCollector collector;
 
-  private BlockingQueue<MyMessage> queue;
+  private BlockingQueue<MyMessage22> queue;
 
-//  private int count;
-//
-//  private AtomicInteger count2;
+  private int count;
+
+  private AtomicInteger count2;
 
   @Override
   public void open(Map map, TopologyContext topologyContext,
@@ -43,13 +42,15 @@ public class MessageSpout implements IRichSpout {
     int MAX_SIZE = 1000000;
     queue = new LinkedBlockingQueue<>(MAX_SIZE);
 
-//    count = 0;
-//    count2 = new AtomicInteger();
+    count = 0;
+    count2 = new AtomicInteger();
 
     DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(RaceConfig.MetaConsumerGroup);
     consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
-    consumer.setConsumeMessageBatchMaxSize(64);
-    consumer.setPullBatchSize(64);
+    consumer.setConsumeMessageBatchMaxSize(32);
+    consumer.setPullBatchSize(32);
+
+    consumer.setNamesrvAddr("127.0.0.1:9876");
 
     try {
       consumer.subscribe(RaceConfig.MqPayTopic, "*");
@@ -64,8 +65,8 @@ public class MessageSpout implements IRichSpout {
             for (MessageExt msg : list) {
               //RaceUtils.println("[msgListSize] " + list.size());
               //RaceUtils.println("[MessageId] " + msg.getMsgId());
-              //RaceUtils.println("[spoutConsume] " + (count2.incrementAndGet()));
-              queue.put(new MyMessage(msg.getMsgId(), msg.getTopic(), msg.getBody()));
+              System.out.println("[spoutConsume] " + (count2.incrementAndGet()));
+              queue.put(new MyMessage22(msg.getMsgId(), msg.getTopic(), msg.getBody()));
             }
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
           } catch (Exception e) {
@@ -84,10 +85,10 @@ public class MessageSpout implements IRichSpout {
   @Override
   public void nextTuple() {
     //System.out.println(Thread.currentThread().getId());
-    MyMessage msg = queue.poll();
+    MyMessage22 msg = queue.poll();
     while (msg != null) {
-      //RaceUtils.println("[spoutEmit] " + (++count));
-      collector.emit(new Values(msg));
+      System.out.println("[spoutEmit] " + (++count));
+      collector.emit(new Values(msg.getTopic()));
       msg = queue.poll();
     }
   }
