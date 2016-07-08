@@ -1,15 +1,13 @@
 package com.alibaba.middleware.race;
 
 import com.alibaba.middleware.race.jstorm.MyMessage;
-import com.alibaba.middleware.race.jstorm.PayRatioData;
+import com.alibaba.middleware.race.jstorm.RatioData;
 import com.alibaba.middleware.race.model.OrderMessage;
 import com.alibaba.middleware.race.model.PaymentMessage;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Map;
 
@@ -66,10 +64,10 @@ public class RaceUtils {
     pw.flush();
   }
 
-  public static synchronized void printPayRatio(Map<Long, PayRatioData> map) {
+  public static synchronized void printRatio(Map<Long, RatioData> map) {
     pw.println("[ratio] map size " + map.size());
     for (long key : map.keySet()) {
-      PayRatioData value = map.get(key);
+      RatioData value = map.get(key);
       pw.printf("[ratio] key:%d %s\n", key, value);
     }
     pw.flush();

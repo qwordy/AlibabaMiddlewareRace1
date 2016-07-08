@@ -1,24 +1,22 @@
 package com.alibaba.middleware.race.jstorm;
 
-import java.math.BigDecimal;
-
 /**
  * Created by yfy on 7/4/16.
- * PayRatioData for one minute
+ * RatioData for one minute
  */
-public class PayRatioData {
+public class RatioData {
 
-  public PayRatioData() {
+  public RatioData() {
     w = 0;
     p = 0;
   }
 
-  public PayRatioData(double wireless, double pc) {
+  public RatioData(double wireless, double pc) {
     w = wireless;
     p = pc;
   }
 
-  public PayRatioData(PayRatioData data) {
+  public RatioData(RatioData data) {
     w = data.getWireless();
     p = data.getPc();
   }

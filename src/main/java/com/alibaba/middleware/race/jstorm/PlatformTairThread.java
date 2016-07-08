@@ -8,20 +8,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by yfy on 7/6/16.
- * RealTimePayWriteTairThread.
+ * PlatformTairThread.
  * Write tair periodly.
  */
-public class RealTimePayWriteTairThread implements Runnable {
+public class PlatformTairThread implements Runnable {
 
-  private ConcurrentHashMap<Long, RealTimePayData> map;
+  private ConcurrentHashMap<Long, PlatformData> map;
 
   private TairOperatorImpl tairOperator;
 
-  public RealTimePayWriteTairThread(ConcurrentHashMap<Long, RealTimePayData> map) {
+  public PlatformTairThread(ConcurrentHashMap<Long, PlatformData> map) {
     this.map = map;
 
-//    tairOperator = TairOperatorImpl.getRaceTairOperator();
-    tairOperator = new TestTairOperator();
+    tairOperator = TairOperatorImpl.getRaceTairOperator();
+//    tairOperator = new TestTairOperator();
   }
 
   @Override
@@ -30,7 +30,7 @@ public class RealTimePayWriteTairThread implements Runnable {
       try {
         Thread.sleep(10000);
         for (long key : map.keySet()) {
-          RealTimePayData data = map.get(key);
+          PlatformData data = map.get(key);
           tairOperator.write(RaceConfig.prex_taobao + key, data.getTaobao());
           tairOperator.write(RaceConfig.prex_tmall + key, data.getTmall());
         }

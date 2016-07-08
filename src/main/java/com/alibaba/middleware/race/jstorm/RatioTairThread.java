@@ -8,19 +8,19 @@ import java.util.Map;
 
 /**
  * Created by yfy on 7/6/16.
- * PayRatioWriteTairThread
+ * RatioTairThread
  */
-public class PayRatioWriteTairThread implements Runnable {
+public class RatioTairThread implements Runnable {
 
-  private Map<Long, PayRatioData> map;
+  private Map<Long, RatioData> map;
 
   private TairOperatorImpl tairOperator;
 
-  public PayRatioWriteTairThread(Map<Long, PayRatioData> map) {
+  public RatioTairThread(Map<Long, RatioData> map) {
     this.map = map;
 
-    tairOperator = TairOperatorImpl.getRaceTairOperator();
-//    tairOperator = new TestTairOperator();
+//    tairOperator = TairOperatorImpl.getRaceTairOperator();
+    tairOperator = new TestTairOperator();
   }
 
   @Override

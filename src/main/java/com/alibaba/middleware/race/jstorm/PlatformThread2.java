@@ -1,28 +1,27 @@
 package com.alibaba.middleware.race.jstorm;
 
-import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.model.PaymentMessage;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by yfy on 7/6/16.
- * RealTimePendingPayThread
+ * PlatformThread2
  */
-public class RealTimePendingPayThread implements Runnable {
+public class PlatformThread2 implements Runnable {
 
   private LinkedBlockingQueue<PaymentMessage> payQueue;
 
-  private RealTimePayThread realTimePayThread;
+  private PlatformThread platformThread;
 
-  public RealTimePendingPayThread(RealTimePayThread realTimePayThread) {
+  public PlatformThread2(PlatformThread platformThread) {
     payQueue = new LinkedBlockingQueue<>();
-    this.realTimePayThread = realTimePayThread;
+    this.platformThread = platformThread;
   }
 
   public void addPaymentMessage(PaymentMessage pm) {
     try {
-      //RaceUtils.println("[RealTimePayBolt] addPendingPay " + pm.toString());
+      //RaceUtils.println("[PlatformBolt] addPendingPay " + pm.toString());
       payQueue.put(pm);
     } catch (Exception e) {
       e.printStackTrace();
@@ -34,7 +33,7 @@ public class RealTimePendingPayThread implements Runnable {
     while (true) {
       try {
         PaymentMessage pm = payQueue.take();
-        realTimePayThread.dealPaymentMessage(pm);
+        platformThread.dealPaymentMessage(pm);
       } catch (Exception e) {
         e.printStackTrace();
       }

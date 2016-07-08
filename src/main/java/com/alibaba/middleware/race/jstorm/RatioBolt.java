@@ -4,31 +4,28 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.IRichBolt;
 import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.model.PaymentMessage;
 
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by yfy on 7/4/16.
- * PayRatioBolt
+ * RatioBolt
  */
-public class PayRatioBolt implements IRichBolt {
+public class RatioBolt implements IRichBolt {
 
   private OutputCollector collector;
 
-  // time, payRatioData
-  private ConcurrentHashMap<Long, PayRatioData> resultMap;
+  // time, ratioData
+  private ConcurrentHashMap<Long, RatioData> resultMap;
 
   //private WriteTairThread writeTairThread;
 
-  private int payCount = 0;
+  //private int payCount;
 
   private long minTime, maxTime;
 
@@ -40,16 +37,18 @@ public class PayRatioBolt implements IRichBolt {
     minTime = 9999999999L;
     maxTime = 0;
 
+    //payCount = 0;
+
 //    writeTairThread = new WriteTairThread();
 //    new Thread(writeTairThread).start();
 
-    new Thread(new PayRatioWriteTairThread(resultMap)).start();
+    new Thread(new RatioTairThread(resultMap)).start();
   }
 
   @Override
   public void execute(Tuple tuple) {
     MyMessage msg = (MyMessage) tuple.getValue(0);
-    //RaceUtils.printMsg(msg, "[PayRatioBolt]");
+    //RaceUtils.printMsg(msg, "[RatioBolt]");
     deal(msg);
     collector.ack(tuple);
   }
@@ -66,24 +65,24 @@ public class PayRatioBolt implements IRichBolt {
 
     PaymentMessage pm = RaceUtils.readKryoObject(PaymentMessage.class, body);
     long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
-    PayRatioData data = resultMap.get(minuteTime);
+    RatioData data = resultMap.get(minuteTime);
 
     if (data == null) {
       if (minuteTime > minTime) {
-        PayRatioData d = null;
+        RatioData d = null;
         long t;
 
         for (t = minuteTime - 60; t >= minTime; t -= 60) {
           d = resultMap.get(t);
           if (d != null) {
-            data = new PayRatioData(d);
+            data = new RatioData(d);
             break;
           }
         }
         while ((t += 60) < minuteTime)
-          resultMap.put(t, new PayRatioData(d));
+          resultMap.put(t, new RatioData(d));
       } else {
-        data = new PayRatioData();
+        data = new RatioData();
       }
     }
 
@@ -97,7 +96,7 @@ public class PayRatioBolt implements IRichBolt {
     if (minuteTime < maxTime) {
       long t = minuteTime + 60;
       while (t <= maxTime) {
-        PayRatioData d = resultMap.get(t);
+        RatioData d = resultMap.get(t);
         if (d != null) {
           if (pm.getPayPlatform() == 0)  // pc
             d.addPc(pm.getPayAmount());
@@ -107,6 +106,12 @@ public class PayRatioBolt implements IRichBolt {
         t += 60;
       }
     }
+
+    // update min, max
+    if (minuteTime > maxTime)
+      maxTime = minuteTime;
+    if (minuteTime < minTime)
+      minTime = minuteTime;
   }
 
   @Override

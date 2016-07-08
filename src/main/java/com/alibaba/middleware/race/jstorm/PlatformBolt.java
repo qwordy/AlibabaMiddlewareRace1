@@ -14,26 +14,26 @@ import java.util.Map;
 
 /**
  * Created by yfy on 7/4/16.
- * RealTimePayBolt
+ * PlatformBolt
  */
-public class RealTimePayBolt implements IRichBolt {
+public class PlatformBolt implements IRichBolt {
 
   private OutputCollector collector;
 
-  private RealTimePayThread realTimePayThread;
+  private PlatformThread platformThread;
 
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
     collector = outputCollector;
 
-    realTimePayThread = new RealTimePayThread();
-    new Thread(realTimePayThread).start();
+    platformThread = new PlatformThread();
+    new Thread(platformThread).start();
   }
 
   @Override
   public void execute(Tuple tuple) {
     MyMessage msg = (MyMessage) tuple.getValue(0);
-    //RaceUtils.printMsg(msg, "[RealTimePayBolt]");
+    //RaceUtils.printMsg(msg, "[PlatformBolt]");
     deal(msg);
     collector.ack(tuple);
   }
@@ -46,10 +46,10 @@ public class RealTimePayBolt implements IRichBolt {
     String topic = msg.getTopic();
     if (topic.equals(RaceConfig.MqPayTopic)) {
       PaymentMessage pm = RaceUtils.readKryoObject(PaymentMessage.class, body);
-      realTimePayThread.addPaymentMessage(pm);
+      platformThread.addPaymentMessage(pm);
     } else {
       OrderMessage om = RaceUtils.readKryoObject(OrderMessage.class, body);
-      realTimePayThread.addOrderMessage(om, topic);
+      platformThread.addOrderMessage(om, topic);
     }
 
   }

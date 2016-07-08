@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by yfy on 7/3/16.
@@ -30,14 +31,20 @@ public class MessageSpout implements IRichSpout {
 
   private BlockingQueue<MyMessage> queue;
 
-  private final int MAX_SIZE = 1000000;
+//  private int count;
+//
+//  private AtomicInteger count2;
 
   @Override
   public void open(Map map, TopologyContext topologyContext,
                    SpoutOutputCollector spoutOutputCollector) {
     collector = spoutOutputCollector;
 
+    int MAX_SIZE = 1000000;
     queue = new LinkedBlockingQueue<>(MAX_SIZE);
+
+//    count = 0;
+//    count2 = new AtomicInteger();
 
     DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(RaceConfig.MetaConsumerGroup);
     consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
@@ -52,10 +59,12 @@ public class MessageSpout implements IRichSpout {
       consumer.registerMessageListener(new MessageListenerConcurrently() {
         @Override
         public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
+          //System.out.println(Thread.currentThread().getId());
           try {
             for (MessageExt msg : list) {
               //RaceUtils.println("[msgListSize] " + list.size());
               //RaceUtils.println("[MessageId] " + msg.getMsgId());
+              //RaceUtils.println("[spoutConsume] " + (count2.incrementAndGet()));
               queue.put(new MyMessage(msg.getMsgId(), msg.getTopic(), msg.getBody()));
             }
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
@@ -74,12 +83,12 @@ public class MessageSpout implements IRichSpout {
 
   @Override
   public void nextTuple() {
-    try {
-      MyMessage msg = queue.take();
-      //RaceUtils.printMsg(msg, "[MessageSpout]");
+    //System.out.println(Thread.currentThread().getId());
+    MyMessage msg = queue.poll();
+    while (msg != null) {
+      //RaceUtils.println("[spoutEmit] " + (++count));
       collector.emit(new Values(msg));
-    } catch (Exception e) {
-      e.printStackTrace();
+      msg = queue.poll();
     }
   }
 

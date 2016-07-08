@@ -10,7 +10,7 @@ import com.alibaba.middleware.race.RaceUtils;
 /**
  * Created by yfy on 7/2/16.
  * RaceTopology.
- * Change pom.xml, topology, log, tair, consumer before submit
+ * Change pom.xml, topology, log, tair before submit
  */
 public class RaceTopology {
   public static void main(String[] args) {
@@ -20,8 +20,8 @@ public class RaceTopology {
     TopologyBuilder builder = new TopologyBuilder();
 
     builder.setSpout("spout", new MessageSpout(), 1);
-    builder.setBolt("payRatio", new PayRatioBolt(), 1).shuffleGrouping("spout");
-    //builder.setBolt("realTimePay", new RealTimePayBolt(), 1).shuffleGrouping("spout");
+    builder.setBolt("ratio", new RatioBolt(), 1).shuffleGrouping("spout");
+    //builder.setBolt("platform", new PlatformBolt(), 1).shuffleGrouping("spout");
 
 //    RaceUtils.initLog();
 //    LocalCluster cluster = new LocalCluster();

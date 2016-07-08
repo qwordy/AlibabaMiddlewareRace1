@@ -2,14 +2,14 @@
 package com.alibaba.middleware.race.rocketmq;
 
 import com.alibaba.middleware.race.RaceConfig;
+import com.alibaba.middleware.race.RaceUtils;
+import com.alibaba.middleware.race.model.OrderMessage;
+import com.alibaba.middleware.race.model.PaymentMessage;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
 import com.alibaba.rocketmq.client.producer.SendCallback;
 import com.alibaba.rocketmq.client.producer.SendResult;
 import com.alibaba.rocketmq.common.message.Message;
-import com.alibaba.middleware.race.model.*;
-import com.alibaba.middleware.race.RaceUtils;
-
 
 import java.util.Random;
 import java.util.concurrent.Semaphore;
@@ -21,7 +21,7 @@ import java.util.concurrent.Semaphore;
 public class Producer {
 
   private static Random rand = new Random();
-  private static int count = 3000000;
+  private static int count = 300000;
 
   /**
    * 这是一个模拟堆积消息的程序，生成的消息模型和我们比赛的消息模型是一样的，
@@ -36,6 +36,8 @@ public class Producer {
 
     //在本地搭建好broker后,记得指定nameServer的地址
     //producer.setNamesrvAddr("127.0.0.1:9876");
+
+    int msgNum = 0;
 
     producer.start();
 
@@ -52,6 +54,8 @@ public class Producer {
         byte[] body = RaceUtils.writeKryoObject(orderMessage);
 
         Message msgToBroker = new Message(topics[platform], body);
+
+        //System.out.println("[produce] " + (++msgNum));
 
         producer.send(msgToBroker, new SendCallback() {
           public void onSuccess(SendResult sendResult) {
@@ -76,6 +80,9 @@ public class Producer {
           if (retVal > 0) {
             amount += paymentMessage.getPayAmount();
             final Message messageToBroker = new Message(RaceConfig.MqPayTopic, RaceUtils.writeKryoObject(paymentMessage));
+
+            //System.out.println("[produce] " + (++msgNum));
+
             producer.send(messageToBroker, new SendCallback() {
               public void onSuccess(SendResult sendResult) {
                 System.out.println(paymentMessage);
@@ -110,6 +117,7 @@ public class Producer {
     Message endMsgPay = new Message(RaceConfig.MqPayTopic, zero);
 
     try {
+      //System.out.println("[produce] " + (msgNum += 3));
       producer.send(endMsgTB);
       producer.send(endMsgTM);
       producer.send(endMsgPay);

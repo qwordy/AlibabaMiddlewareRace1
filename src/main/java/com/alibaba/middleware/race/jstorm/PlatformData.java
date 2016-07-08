@@ -2,18 +2,18 @@ package com.alibaba.middleware.race.jstorm;
 
 /**
  * Created by yfy on 7/6/16.
- * RealTimePayData
+ * PlatformData
  */
-public class RealTimePayData {
+public class PlatformData {
 
   private double taobao, tmall;
 
-  public RealTimePayData(double taobao, double tmall) {
+  public PlatformData(double taobao, double tmall) {
     this.taobao = taobao;
     this.tmall = tmall;
   }
 
-  public RealTimePayData() {
+  public PlatformData() {
     taobao = 0;
     tmall = 0;
   }

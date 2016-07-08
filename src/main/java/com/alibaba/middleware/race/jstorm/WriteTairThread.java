@@ -27,7 +27,7 @@ public class WriteTairThread implements Runnable {
 
   public void addPair(Pair pair) {
     try {
-      //RaceUtils.println("[PayRatioBolt] " + pair.key + ' ' + pair.value);
+      //RaceUtils.println("[RatioBolt] " + pair.key + ' ' + pair.value);
       queue.put(pair);
     } catch (Exception e) {
       e.printStackTrace();
