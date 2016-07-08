@@ -10,7 +10,7 @@ import com.alibaba.middleware.race.RaceUtils;
 /**
  * Created by yfy on 7/2/16.
  * RaceTopology.
- * Change pom.xml, topology, log, tair before submit
+ * Change pom.xml, topology(submit), log, tair(all!) before submit
  */
 public class RaceTopology {
   public static void main(String[] args) {
