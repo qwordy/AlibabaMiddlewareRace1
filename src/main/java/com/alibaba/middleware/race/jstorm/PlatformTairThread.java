@@ -3,7 +3,7 @@ package com.alibaba.middleware.race.jstorm;
 import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.Tair.TairOperatorImpl;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 /**
  * Created by yfy on 7/6/16.
@@ -12,11 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PlatformTairThread implements Runnable {
 
-  private ConcurrentHashMap<Long, PlatformData> map;
+  private Map<Long, PlatformData> map;
+
+  private Map<Long, PlatformData> syncMap;
 
   private TairOperatorImpl tairOperator;
 
-  public PlatformTairThread(ConcurrentHashMap<Long, PlatformData> map) {
+  public PlatformTairThread(Map<Long, PlatformData> map) {
     this.map = map;
 
     tairOperator = TairOperatorImpl.getRaceTairOperator();
@@ -28,13 +30,27 @@ public class PlatformTairThread implements Runnable {
     while (true) {
       try {
         Thread.sleep(10000);
-        for (long key : map.keySet()) {
-          PlatformData data = map.get(key);
-          tairOperator.write(RaceConfig.prex_taobao + key, data.getTaobao());
-          tairOperator.write(RaceConfig.prex_tmall + key, data.getTmall());
-        }
       } catch (Exception e) {
         e.printStackTrace();
+      }
+
+      for (long key : map.keySet()) {
+        PlatformData data = map.get(key);
+        PlatformData dataOld = syncMap.get(key);
+        if (dataOld == null) {
+          tairOperator.write(RaceConfig.prex_taobao + key, data.getTaobao());
+          tairOperator.write(RaceConfig.prex_tmall + key, data.getTmall());
+          syncMap.put(key, data);
+        } else {
+          if (data.getTaobao() != dataOld.getTaobao()) {
+            tairOperator.write(RaceConfig.prex_taobao + key, data.getTaobao());
+            syncMap.put(key, data);
+          }
+          if (data.getTmall() != dataOld.getTmall()) {
+            tairOperator.write(RaceConfig.prex_tmall + key, data.getTmall());
+            syncMap.put(key, data);
+          }
+        }
       }
     }
   }

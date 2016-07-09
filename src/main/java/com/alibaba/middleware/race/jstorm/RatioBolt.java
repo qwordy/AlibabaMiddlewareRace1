@@ -23,11 +23,10 @@ public class RatioBolt implements IRichBolt {
   // time, ratioData
   private ConcurrentHashMap<Long, RatioData> resultMap;
 
-  //private WriteTairThread writeTairThread;
-
-  //private int payCount;
-
   private long minTime, maxTime;
+
+  //private WriteTairThread writeTairThread;
+  //private int payCount;
 
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -54,7 +53,6 @@ public class RatioBolt implements IRichBolt {
 //      return;
 //    }
 
-    //System.out.println((String)tuple.getValue(0));
     MyMessage msg = (MyMessage) tuple.getValue(0);
     //RaceUtils.printMsg(msg, "[RatioBolt]");
     deal(msg);

@@ -26,11 +26,11 @@ public class PlatformData {
     tmall += amount;
   }
 
-  public Double getTaobao() {
+  public double getTaobao() {
     return taobao;
   }
 
-  public Double getTmall() {
+  public double getTmall() {
     return tmall;
   }
 

@@ -37,7 +37,7 @@ public class RatioData {
     return p;
   }
 
-  public Double ratio() {
+  public double ratio() {
     return p == 0 ? Double.MAX_VALUE : w / p;
   }
 

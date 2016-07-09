@@ -21,7 +21,7 @@ public class RaceTopology {
 
     builder.setSpout("spout", new MessageSpout(), 1);
     builder.setBolt("ratio", new RatioBolt(), 1).shuffleGrouping("spout");
-    //builder.setBolt("platform", new PlatformBolt(), 1).shuffleGrouping("spout");
+    builder.setBolt("platform", new PlatformBolt(), 1).shuffleGrouping("spout");
 
 //    RaceUtils.initLog();
 //    LocalCluster cluster = new LocalCluster();

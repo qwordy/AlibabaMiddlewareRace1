@@ -11,5 +11,13 @@ public class Test {
   public static void main(String[] args) {
     MyMessage msg = new MyMessage("aa", "bb", new byte[]{1,2});
     RaceUtils.readKryoObject(MyMessage.class, RaceUtils.writeKryoObject(msg));
+    Double a = get();
+    if (a != 0 || a == null)
+      System.out.println(a);
+
+  }
+
+  public static Double get() {
+    return null;
   }
 }

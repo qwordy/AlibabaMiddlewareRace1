@@ -16,7 +16,7 @@ public class PlatformThread implements Runnable {
 
   private LinkedBlockingQueue<PaymentMessage> payQueue;
 
-  private final int MAX_SIZE = 10000000;
+  private final int MAX_SIZE = 5000000;
 
   // history orders
   // orderId, myOrderMessage
@@ -27,7 +27,7 @@ public class PlatformThread implements Runnable {
 
   private PlatformThread2 platformThread2;
 
-  private AtomicInteger payCount = new AtomicInteger();
+  //private AtomicInteger payCount = new AtomicInteger();
 
   public PlatformThread() {
     payQueue = new LinkedBlockingQueue<>(MAX_SIZE);
@@ -78,7 +78,7 @@ public class PlatformThread implements Runnable {
     MyOrderMessage om = orderMap.get(orderId);
 
     if (om != null) {
-      System.out.println("[RealTime] payCount " + payCount.incrementAndGet());
+      //System.out.println("[RealTime] payCount " + payCount.incrementAndGet());
       //RaceUtils.println("[PlatformBolt] dealPay " + pm.toString());
       double payAmount = pm.getPayAmount();
       long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
@@ -96,7 +96,7 @@ public class PlatformThread implements Runnable {
       //RaceUtils.println("[ReadTimePayBolt] put " + minuteTime + ' ' + data.toString());
 
       if (om.minusPrice(payAmount)) {
-          orderMap.remove(orderId);
+        orderMap.remove(orderId);
         synchronized (orderMap) {
           orderMap.notify();
         }
