@@ -2,17 +2,17 @@ package com.alibaba.middleware.race.jstorm;
 
 /**
  * Created by yfy on 7/5/16.
- * MyMessage22
+ * MyMessage
  */
-public class MyMessage22 {
+public class MyMessage {
 
   private String msgId, topic;
 
   private byte[] body;
 
-  public MyMessage22() {}
+  public MyMessage() {}
 
-  public MyMessage22(String msgId, String topic, byte[] body) {
+  public MyMessage(String msgId, String topic, byte[] body) {
     this.msgId = msgId;
     this.topic = topic;
     this.body = body;

@@ -2,7 +2,6 @@ package com.alibaba.middleware.race.jstorm;
 
 import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.Tair.TairOperatorImpl;
-import com.alibaba.middleware.race.Tair.TestTairOperator;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,7 +20,7 @@ public class PlatformTairThread implements Runnable {
     this.map = map;
 
     tairOperator = TairOperatorImpl.getRaceTairOperator();
-//    tairOperator = new TestTairOperator();
+//    tairOperator = TairOperatorImpl.getTestTairOperator();
   }
 
   @Override

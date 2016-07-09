@@ -1,6 +1,6 @@
 package com.alibaba.middleware.race;
 
-import com.alibaba.middleware.race.jstorm.MyMessage22;
+import com.alibaba.middleware.race.jstorm.MyMessage;
 import com.alibaba.middleware.race.jstorm.RatioData;
 import com.alibaba.middleware.race.model.OrderMessage;
 import com.alibaba.middleware.race.model.PaymentMessage;
@@ -49,7 +49,7 @@ public class RaceUtils {
     }
   }
 
-  public static synchronized void printMsg(MyMessage22 msg, String head) {
+  public static synchronized void printMsg(MyMessage msg, String head) {
     pw.print(head + ' ');
     byte[] body = msg.getBody();
     if (body.length == 2 && body[0] == 0 && body[1] == 0) {
@@ -74,6 +74,13 @@ public class RaceUtils {
   }
 
   public static synchronized void println(Object o) {
+    if (pw == null) {
+      try {
+        pw = new PrintWriter("/home/yfy/middleware/race1/log");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
     pw.println(o + " " + System.currentTimeMillis());
     pw.flush();
   }

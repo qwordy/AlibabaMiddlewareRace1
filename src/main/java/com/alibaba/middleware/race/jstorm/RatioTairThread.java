@@ -2,7 +2,6 @@ package com.alibaba.middleware.race.jstorm;
 
 import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.Tair.TairOperatorImpl;
-import com.alibaba.middleware.race.Tair.TestTairOperator;
 
 import java.util.Map;
 
@@ -19,8 +18,8 @@ public class RatioTairThread implements Runnable {
   public RatioTairThread(Map<Long, RatioData> map) {
     this.map = map;
 
-//    tairOperator = TairOperatorImpl.getRaceTairOperator();
-    tairOperator = new TestTairOperator();
+    tairOperator = TairOperatorImpl.getRaceTairOperator();
+//    tairOperator = TairOperatorImpl.getTestTairOperator();
   }
 
   @Override

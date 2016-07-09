@@ -39,9 +39,6 @@ public class RatioBolt implements IRichBolt {
 
     //payCount = 0;
 
-//    writeTairThread = new WriteTairThread();
-//    new Thread(writeTairThread).start();
-
     new Thread(new RatioTairThread(resultMap)).start();
   }
 
@@ -57,14 +54,14 @@ public class RatioBolt implements IRichBolt {
 //      return;
 //    }
 
-    System.out.println((String)tuple.getValue(0));
-    //MyMessage22 msg = (MyMessage22) tuple.getValue(0);
+    //System.out.println((String)tuple.getValue(0));
+    MyMessage msg = (MyMessage) tuple.getValue(0);
     //RaceUtils.printMsg(msg, "[RatioBolt]");
-    //deal(msg);
+    deal(msg);
     collector.ack(tuple);
   }
 
-  private void deal(MyMessage22 msg) {
+  private void deal(MyMessage msg) {
     if (!msg.getTopic().equals(RaceConfig.MqPayTopic))
       return;
 

@@ -10,12 +10,12 @@ import com.alibaba.middleware.race.RaceUtils;
 /**
  * Created by yfy on 7/2/16.
  * RaceTopology.
- * Change pom.xml, topology(submit), log, tair(all!), consumerAddr before submit
+ * Change pom.xml, topology(name), log, tair(all!), spout's consumerAddr before submit
  */
 public class RaceTopology {
   public static void main(String[] args) {
     Config conf = new Config();
-    conf.setNumWorkers(3);
+    conf.setNumWorkers(4);
 
     TopologyBuilder builder = new TopologyBuilder();
 
@@ -29,6 +29,7 @@ public class RaceTopology {
 
     try {
       StormSubmitter.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
+      //StormSubmitter.submitTopology("hehe", conf, builder.createTopology());
     } catch (Exception e) {
       e.printStackTrace();
     }

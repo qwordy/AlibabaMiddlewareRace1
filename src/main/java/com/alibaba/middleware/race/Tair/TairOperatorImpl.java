@@ -41,11 +41,17 @@ public class TairOperatorImpl {
 
   public TairOperatorImpl() {}
 
-  // tair operator with race config
+  /**
+   * Tair operator with race config
+   */
   public static TairOperatorImpl getRaceTairOperator() {
     return new TairOperatorImpl(RaceConfig.TairConfigServer,
         RaceConfig.TairSalveConfigServer,
         RaceConfig.TairGroup, RaceConfig.TairNamespace);
+  }
+
+  public static TairOperatorImpl getTestTairOperator() {
+    return new TairOperatorImpl("192.168.1.59:5198", null, "group_1", 0);
   }
 
   public boolean write(Serializable key, Serializable value) {
@@ -100,5 +106,9 @@ public class TairOperatorImpl {
     double value = (double) tairOperator.get(key);
     System.out.println(value);
     System.out.println(tairOperator.get("k1"));
+
+    System.out.println(tairOperator.get(RaceConfig.prex_ratio + "1468043640"));
+    System.out.println(tairOperator.get(RaceConfig.prex_ratio + "1468043700"));
+
   }
 }
