@@ -3,6 +3,7 @@ package com.alibaba.middleware.race.jstorm;
 import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.Tair.TairOperatorImpl;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -18,8 +19,10 @@ public class PlatformTairThread implements Runnable {
 
   private TairOperatorImpl tairOperator;
 
+  // result map
   public PlatformTairThread(Map<Long, PlatformData> map) {
     this.map = map;
+    syncMap = new HashMap<>();
 
     tairOperator = TairOperatorImpl.getRaceTairOperator();
 //    tairOperator = TairOperatorImpl.getTestTairOperator();

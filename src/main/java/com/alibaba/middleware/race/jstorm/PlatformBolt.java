@@ -11,6 +11,7 @@ import com.alibaba.middleware.race.model.OrderMessage;
 import com.alibaba.middleware.race.model.PaymentMessage;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by yfy on 7/4/16.
@@ -22,12 +23,21 @@ public class PlatformBolt implements IRichBolt {
 
   private PlatformThread platformThread;
 
+  // orderId, msg
+  private ConcurrentHashMap<Long, MyOrderMessage> orderMap;
+
+  private ConcurrentHashMap<Long, PlatformData> resultMap;
+
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
     collector = outputCollector;
+    orderMap = new ConcurrentHashMap<>();
+    resultMap = new ConcurrentHashMap<>();
 
-    platformThread = new PlatformThread();
+    platformThread = new PlatformThread(orderMap, resultMap);
     new Thread(platformThread).start();
+
+    new Thread(new PlatformTairThread(resultMap)).start();
   }
 
   @Override
@@ -46,12 +56,39 @@ public class PlatformBolt implements IRichBolt {
     String topic = msg.getTopic();
     if (topic.equals(RaceConfig.MqPayTopic)) {
       PaymentMessage pm = RaceUtils.readKryoObject(PaymentMessage.class, body);
-      platformThread.addPaymentMessage(pm);
+      dealPay(pm);
     } else {
       OrderMessage om = RaceUtils.readKryoObject(OrderMessage.class, body);
-      platformThread.addOrderMessage(om, topic);
+      short platform = topic.equals(RaceConfig.MqTaobaoTradeTopic) ?
+          MyOrderMessage.TAOBAO : MyOrderMessage.TMALL;
+      orderMap.put(om.getOrderId(), new MyOrderMessage(platform, om.getTotalPrice()));
     }
+  }
 
+  private void dealPay(PaymentMessage pm) {
+    long orderId = pm.getOrderId();
+    MyOrderMessage om = orderMap.get(orderId);
+
+    if (om == null) {
+      platformThread.addPay(pm);
+    } else {
+      double payAmount = pm.getPayAmount();
+      long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
+
+      PlatformData data = resultMap.get(minuteTime);
+      if (data == null)
+        data = new PlatformData();
+
+      if (om.platform == MyOrderMessage.TAOBAO)
+        data.addTaobao(payAmount);
+      else
+        data.addTmall(payAmount);
+
+      resultMap.put(minuteTime, data);
+
+      if (om.minusPrice(payAmount))
+        orderMap.remove(orderId);
+    }
   }
 
   @Override

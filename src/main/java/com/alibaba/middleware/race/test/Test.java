@@ -1,6 +1,8 @@
 package com.alibaba.middleware.race.test;
 
+import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.RaceUtils;
+import com.alibaba.middleware.race.Tair.TairOperatorImpl;
 import com.alibaba.middleware.race.jstorm.MyMessage;
 
 /**
@@ -8,16 +10,27 @@ import com.alibaba.middleware.race.jstorm.MyMessage;
  * Test
  */
 public class Test {
-  public static void main(String[] args) {
-    MyMessage msg = new MyMessage("aa", "bb", new byte[]{1,2});
-    RaceUtils.readKryoObject(MyMessage.class, RaceUtils.writeKryoObject(msg));
-    Double a = get();
-    if (a != 0 || a == null)
-      System.out.println(a);
 
+  private static TairOperatorImpl tairOperator;
+
+  public static void main(String[] args) {
+    readTair();
   }
 
-  public static Double get() {
-    return null;
+  private static void readTair() {
+    tairOperator = TairOperatorImpl.getTestTairOperator();
+    long ctime = (System.currentTimeMillis() / 1000 / 60) * 60;
+    System.out.println("Now: " + ctime);
+    for (long time = 1468043700; time <= ctime; time += 60) {
+      print(RaceConfig.prex_ratio + time);
+      print(RaceConfig.prex_taobao + time);
+      print(RaceConfig.prex_tmall + time);
+    }
+  }
+
+  private static void print(String key) {
+    Double value = (Double) tairOperator.get(key);
+    if (value != null)
+      System.out.println(key + ' ' + value);
   }
 }

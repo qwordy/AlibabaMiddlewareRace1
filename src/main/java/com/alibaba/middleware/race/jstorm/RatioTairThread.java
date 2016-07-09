@@ -20,6 +20,7 @@ public class RatioTairThread implements Runnable {
 
   private TairOperatorImpl tairOperator;
 
+  // result map
   public RatioTairThread(Map<Long, RatioData> map) {
     this.map = map;
     syncMap = new HashMap<>();

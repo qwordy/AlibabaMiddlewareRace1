@@ -29,7 +29,7 @@ public class RaceTopology {
 
     try {
       StormSubmitter.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
-      //StormSubmitter.submitTopology("hehe", conf, builder.createTopology());
+//      StormSubmitter.submitTopology("hehe", conf, builder.createTopology());
     } catch (Exception e) {
       e.printStackTrace();
     }

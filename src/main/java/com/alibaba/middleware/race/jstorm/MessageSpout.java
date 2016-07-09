@@ -95,7 +95,7 @@ public class MessageSpout implements IRichSpout {
 
   @Override
   public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-    outputFieldsDeclarer.declare(new Fields(""));
+    outputFieldsDeclarer.declare(new Fields("msg"));
   }
 
   @Override

@@ -85,10 +85,9 @@ public class TairOperatorImpl {
     manager.close();
   }
 
-  //天猫的分钟交易额写入tair
-  public static void main(String[] args) throws Exception {
-    TairOperatorImpl tairOperator = new TairOperatorImpl("192.168.1.59:5198", null, "group_1", 0);
 
+  public static void main(String[] args) throws Exception {
+    TairOperatorImpl tairOperator = TairOperatorImpl.getTestTairOperator();
     //假设这是付款时间
     Long millisTime = System.currentTimeMillis();
     //由于整分时间戳是10位数，所以需要转换成整分时间戳
@@ -106,9 +105,5 @@ public class TairOperatorImpl {
     double value = (double) tairOperator.get(key);
     System.out.println(value);
     System.out.println(tairOperator.get("k1"));
-
-    System.out.println(tairOperator.get(RaceConfig.prex_ratio + "1468043640"));
-    System.out.println(tairOperator.get(RaceConfig.prex_ratio + "1468043700"));
-
   }
 }
