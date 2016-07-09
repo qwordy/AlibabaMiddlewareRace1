@@ -18,11 +18,11 @@ public class PlatformData {
     tmall = 0;
   }
 
-  public void addTaobao(double amount) {
+  public synchronized void addTaobao(double amount) {
     taobao += amount;
   }
 
-  public void addTmall(double amount) {
+  public synchronized void addTmall(double amount) {
     tmall += amount;
   }
 

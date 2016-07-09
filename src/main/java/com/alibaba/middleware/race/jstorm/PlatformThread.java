@@ -31,11 +31,7 @@ public class PlatformThread implements Runnable {
   }
 
   public void addPay(PaymentMessage pm) {
-    try {
-      payQueue.put(pm);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    payQueue.offer(pm);
   }
 
   // Wait until orderId is in orderMap
@@ -58,7 +54,7 @@ public class PlatformThread implements Runnable {
     if (data == null)
       data = new PlatformData();
 
-    if (om.platform == MyOrderMessage.TAOBAO)
+    if (om.taobao())
       data.addTaobao(payAmount);
     else
       data.addTmall(payAmount);

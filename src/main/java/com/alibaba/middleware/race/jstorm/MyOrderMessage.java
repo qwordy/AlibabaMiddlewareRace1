@@ -12,14 +12,18 @@ public class MyOrderMessage {
 
   //public long orderId;
 
-  public short platform;
+  private short platform;
 
-  public double remainPrice;
+  private double remainPrice;
 
   public MyOrderMessage(short platform, double price) {
     //this.orderId = orderId;
     this.platform = platform;
     this.remainPrice = price;
+  }
+
+  public boolean taobao() {
+    return platform == TAOBAO;
   }
 
   public synchronized boolean minusPrice(double price) {

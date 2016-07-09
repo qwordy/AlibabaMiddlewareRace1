@@ -79,7 +79,7 @@ public class PlatformBolt implements IRichBolt {
       if (data == null)
         data = new PlatformData();
 
-      if (om.platform == MyOrderMessage.TAOBAO)
+      if (om.taobao())
         data.addTaobao(payAmount);
       else
         data.addTmall(payAmount);
