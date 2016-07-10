@@ -19,15 +19,22 @@ public class PlatformThread implements Runnable {
 
   private LinkedBlockingQueue<PaymentMessage> payQueue;
 
+  // shared with platformBolt
   private ConcurrentHashMap<Long, MyOrderMessage> orderMap;
 
+  // shared with platformBolt
   private ConcurrentHashMap<Long, PlatformData> resultMap;
 
+  // shared with platformBolt
+  private byte[] lock;
+
   public PlatformThread(ConcurrentHashMap<Long, MyOrderMessage> orderMap,
-                        ConcurrentHashMap<Long, PlatformData> resultMap) {
+                        ConcurrentHashMap<Long, PlatformData> resultMap,
+                        byte[] lock) {
     payQueue = new LinkedBlockingQueue<>();
     this.orderMap = orderMap;
     this.resultMap = resultMap;
+    this.lock = lock;
   }
 
   public void addPay(PaymentMessage pm) {
@@ -50,16 +57,19 @@ public class PlatformThread implements Runnable {
     double payAmount = pm.getPayAmount();
     long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
 
-    PlatformData data = resultMap.get(minuteTime);
-    if (data == null)
-      data = new PlatformData();
+    PlatformData data;
+    synchronized (lock) {
+      data = resultMap.get(minuteTime);
+      if (data == null) {
+        data = new PlatformData();
+        resultMap.put(minuteTime, data);
+      }
+    }
 
     if (om.taobao())
       data.addTaobao(payAmount);
     else
       data.addTmall(payAmount);
-
-    resultMap.put(minuteTime, data);
 
     if (om.minusPrice(payAmount))
       orderMap.remove(orderId);

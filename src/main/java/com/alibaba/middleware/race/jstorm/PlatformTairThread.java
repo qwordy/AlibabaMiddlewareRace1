@@ -13,15 +13,14 @@ import java.util.Map;
  */
 public class PlatformTairThread implements Runnable {
 
-  private Map<Long, PlatformData> map;
+  private Map<Long, PlatformData> resultMap;
 
   private Map<Long, PlatformData> syncMap;
 
   private TairOperatorImpl tairOperator;
 
-  // result map
-  public PlatformTairThread(Map<Long, PlatformData> map) {
-    this.map = map;
+  public PlatformTairThread(Map<Long, PlatformData> resultMap) {
+    this.resultMap = resultMap;
     syncMap = new HashMap<>();
 
     tairOperator = TairOperatorImpl.getRaceTairOperator();
@@ -37,21 +36,21 @@ public class PlatformTairThread implements Runnable {
         e.printStackTrace();
       }
 
-      for (long key : map.keySet()) {
-        PlatformData data = map.get(key);
+      for (long key : resultMap.keySet()) {
+        PlatformData data = resultMap.get(key);
         PlatformData dataOld = syncMap.get(key);
         if (dataOld == null) {
           tairOperator.write(RaceConfig.prex_taobao + key, data.getTaobao());
           tairOperator.write(RaceConfig.prex_tmall + key, data.getTmall());
-          syncMap.put(key, data);
+          syncMap.put(key, new PlatformData(data));
         } else {
           if (data.getTaobao() != dataOld.getTaobao()) {
             tairOperator.write(RaceConfig.prex_taobao + key, data.getTaobao());
-            syncMap.put(key, data);
+            dataOld.setTaobao(data.getTaobao());
           }
           if (data.getTmall() != dataOld.getTmall()) {
             tairOperator.write(RaceConfig.prex_tmall + key, data.getTmall());
-            syncMap.put(key, data);
+            dataOld.setTmall((data.getTmall()));
           }
         }
       }

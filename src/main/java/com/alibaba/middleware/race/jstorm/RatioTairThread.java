@@ -13,16 +13,15 @@ import java.util.Map;
 public class RatioTairThread implements Runnable {
 
   // latest data
-  private Map<Long, RatioData> map;
+  private Map<Long, RatioData> resultMap;
 
   // last sync data
   private Map<Long, Double> syncMap;
 
   private TairOperatorImpl tairOperator;
 
-  // result map
-  public RatioTairThread(Map<Long, RatioData> map) {
-    this.map = map;
+  public RatioTairThread(Map<Long, RatioData> resultMap) {
+    this.resultMap = resultMap;
     syncMap = new HashMap<>();
 
     tairOperator = TairOperatorImpl.getRaceTairOperator();
@@ -38,8 +37,8 @@ public class RatioTairThread implements Runnable {
         e.printStackTrace();
       }
 
-      for (long key : map.keySet()) {
-        double ratio = map.get(key).ratio();
+      for (long key : resultMap.keySet()) {
+        double ratio = resultMap.get(key).ratio();
         Double ratioOld = syncMap.get(key);
         if (ratioOld == null || ratio != ratioOld) {
           tairOperator.write(RaceConfig.prex_ratio + key, ratio);

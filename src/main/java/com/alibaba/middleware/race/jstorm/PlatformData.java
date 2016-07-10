@@ -8,14 +8,19 @@ public class PlatformData {
 
   private double taobao, tmall;
 
+  public PlatformData() {
+    taobao = 0;
+    tmall = 0;
+  }
+
   public PlatformData(double taobao, double tmall) {
     this.taobao = taobao;
     this.tmall = tmall;
   }
 
-  public PlatformData() {
-    taobao = 0;
-    tmall = 0;
+  public PlatformData(PlatformData data) {
+    taobao = data.getTaobao();
+    tmall = data.getTmall();
   }
 
   public synchronized void addTaobao(double amount) {
@@ -32,6 +37,14 @@ public class PlatformData {
 
   public double getTmall() {
     return tmall;
+  }
+
+  public void setTaobao(double amount) {
+    taobao = amount;
+  }
+
+  public void setTmall(double amount) {
+    tmall = amount;
   }
 
   @Override

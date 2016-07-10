@@ -20,12 +20,12 @@ public class Test {
   private static void readTair() {
     tairOperator = TairOperatorImpl.getTestTairOperator();
     long ctime = (System.currentTimeMillis() / 1000 / 60) * 60;
-    System.out.println("Now: " + ctime);
     for (long time = 1468043700; time <= ctime; time += 60) {
       print(RaceConfig.prex_ratio + time);
       print(RaceConfig.prex_taobao + time);
       print(RaceConfig.prex_tmall + time);
     }
+    System.out.println("Now: " + ctime);
   }
 
   private static void print(String key) {

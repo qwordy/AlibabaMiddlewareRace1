@@ -28,13 +28,16 @@ public class PlatformBolt implements IRichBolt {
 
   private ConcurrentHashMap<Long, PlatformData> resultMap;
 
+  private byte[] lock;
+
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
     collector = outputCollector;
     orderMap = new ConcurrentHashMap<>();
     resultMap = new ConcurrentHashMap<>();
+    lock = new byte[0];
 
-    platformThread = new PlatformThread(orderMap, resultMap);
+    platformThread = new PlatformThread(orderMap, resultMap, lock);
     new Thread(platformThread).start();
 
     new Thread(new PlatformTairThread(resultMap)).start();
@@ -75,16 +78,19 @@ public class PlatformBolt implements IRichBolt {
       double payAmount = pm.getPayAmount();
       long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
 
-      PlatformData data = resultMap.get(minuteTime);
-      if (data == null)
-        data = new PlatformData();
+      PlatformData data;
+      synchronized (lock) {
+        data = resultMap.get(minuteTime);
+        if (data == null) {
+          data = new PlatformData();
+          resultMap.put(minuteTime, data);
+        }
+      }
 
       if (om.taobao())
         data.addTaobao(payAmount);
       else
         data.addTmall(payAmount);
-
-      resultMap.put(minuteTime, data);
 
       if (om.minusPrice(payAmount))
         orderMap.remove(orderId);

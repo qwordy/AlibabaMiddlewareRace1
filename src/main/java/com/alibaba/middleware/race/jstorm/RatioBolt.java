@@ -41,10 +41,6 @@ public class RatioBolt implements IRichBolt {
     new Thread(new RatioTairThread(resultMap)).start();
   }
 
-  private void writeTair() {
-    //RaceUtils.println("[Ratio] writeTair");
-  }
-
   @Override
   public void execute(Tuple tuple) {
 //    if (tuple.getSourceComponent().equals(Constants.SYSTEM_COMPONENT_ID) &&
