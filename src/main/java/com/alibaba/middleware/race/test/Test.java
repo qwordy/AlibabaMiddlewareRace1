@@ -14,8 +14,8 @@ public class Test {
   private static TairOperatorImpl tairOperator;
 
   public static void main(String[] args) {
-    //readTair();
-    objectId();
+    readTair();
+//    objectId();
   }
 
   private static void objectId() {

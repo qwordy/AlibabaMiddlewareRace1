@@ -26,6 +26,11 @@ public class RatioData {
     p += amount;
   }
 
+  public void addRatioData(RatioData data) {
+    w += data.getWireless();
+    p += data.getPc();
+  }
+
   public double getWireless() {
     return w;
   }

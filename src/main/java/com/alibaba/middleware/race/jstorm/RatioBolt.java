@@ -13,8 +13,8 @@ import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.model.PaymentMessage;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by yfy on 7/4/16.
@@ -25,7 +25,7 @@ public class RatioBolt implements IRichBolt {
   private OutputCollector collector;
 
   // time, ratioData
-  private ConcurrentHashMap<Long, RatioData> resultMap;
+  private Map<Long, RatioData> resultMap;
 
   private long minTime, maxTime;
 
@@ -35,7 +35,7 @@ public class RatioBolt implements IRichBolt {
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
     collector = outputCollector;
-    resultMap = new ConcurrentHashMap<>();
+    resultMap = new HashMap<>();
 
     minTime = 9999999999L;
     maxTime = 0;
@@ -49,14 +49,12 @@ public class RatioBolt implements IRichBolt {
   public void execute(Tuple tuple) {
     if (tuple.getSourceComponent().equals(Constants.SYSTEM_COMPONENT_ID) &&
         tuple.getSourceStreamId().equals(Constants.SYSTEM_TICK_STREAM_ID)) {
-      collector.emit(new Values(
-          resultMap.entrySet(), id));
-      return;
+      collector.emit(new Values(resultMap, id));
+    } else {
+      MyMessage msg = (MyMessage) tuple.getValue(0);
+      deal(msg);
+      collector.ack(tuple);
     }
-
-    MyMessage msg = (MyMessage) tuple.getValue(0);
-    deal(msg);
-    collector.ack(tuple);
   }
 
   public void deal(MyMessage msg) {
@@ -122,7 +120,7 @@ public class RatioBolt implements IRichBolt {
 
   @Override
   public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-    outputFieldsDeclarer.declare(new Fields("resultEntrySet", "id"));
+    outputFieldsDeclarer.declare(new Fields("resultMap", "id"));
   }
 
   @Override

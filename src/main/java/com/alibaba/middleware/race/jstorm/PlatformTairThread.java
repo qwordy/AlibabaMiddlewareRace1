@@ -23,8 +23,8 @@ public class PlatformTairThread implements Runnable {
     this.resultMap = resultMap;
     syncMap = new HashMap<>();
 
-//    tairOperator = TairOperatorImpl.getRaceTairOperator();
-    tairOperator = TairOperatorImpl.getTestTairOperator();
+    tairOperator = TairOperatorImpl.getRaceTairOperator();
+//    tairOperator = TairOperatorImpl.getTestTairOperator();
   }
 
   @Override

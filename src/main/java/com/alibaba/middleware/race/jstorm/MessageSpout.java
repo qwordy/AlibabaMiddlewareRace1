@@ -50,7 +50,7 @@ public class MessageSpout implements IRichSpout {
     consumer.setConsumeMessageBatchMaxSize(32);
     consumer.setPullBatchSize(32);
 
-    consumer.setNamesrvAddr("127.0.0.1:9876");
+    //consumer.setNamesrvAddr("127.0.0.1:9876");
 
     try {
       consumer.subscribe(RaceConfig.MqPayTopic, "*");

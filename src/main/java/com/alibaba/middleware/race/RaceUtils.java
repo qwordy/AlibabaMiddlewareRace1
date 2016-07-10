@@ -81,7 +81,7 @@ public class RaceUtils {
         e.printStackTrace();
       }
     }
-    pw.println(o + " " + System.currentTimeMillis());
+    pw.println(o + " ");
     pw.flush();
   }
 }
