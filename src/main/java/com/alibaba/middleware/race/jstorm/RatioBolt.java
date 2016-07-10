@@ -15,7 +15,6 @@ import com.alibaba.middleware.race.model.PaymentMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by yfy on 7/4/16.
@@ -30,6 +29,9 @@ public class RatioBolt implements IRichBolt {
 
   private long minTime, maxTime;
 
+  // instance id
+  private long id;
+
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
     collector = outputCollector;
@@ -38,6 +40,8 @@ public class RatioBolt implements IRichBolt {
     minTime = 9999999999L;
     maxTime = 0;
 
+    id = System.nanoTime() ^ System.identityHashCode(this);
+
     //new Thread(new RatioTairThread(resultMap)).start();
   }
 
@@ -45,7 +49,8 @@ public class RatioBolt implements IRichBolt {
   public void execute(Tuple tuple) {
     if (tuple.getSourceComponent().equals(Constants.SYSTEM_COMPONENT_ID) &&
         tuple.getSourceStreamId().equals(Constants.SYSTEM_TICK_STREAM_ID)) {
-      collector.emit(new Values(resultMap));
+      collector.emit(new Values(
+          resultMap.entrySet(), id));
       return;
     }
 
@@ -117,13 +122,13 @@ public class RatioBolt implements IRichBolt {
 
   @Override
   public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-    outputFieldsDeclarer.declare(new Fields("resultMap"));
+    outputFieldsDeclarer.declare(new Fields("resultEntrySet", "id"));
   }
 
   @Override
   public Map<String, Object> getComponentConfiguration() {
     Map<String, Object> conf = new Config();
-    conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1);
+    conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 10);
     return conf;
   }
 }

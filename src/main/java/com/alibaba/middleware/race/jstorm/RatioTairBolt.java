@@ -9,6 +9,7 @@ import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.Tair.TairOperatorImpl;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by yfy on 7/10/16.
@@ -18,7 +19,9 @@ public class RatioTairBolt implements IRichBolt {
 
   private OutputCollector collector;
 
-  private Map<Long, RatioData> resultMap;
+  //private Map<Long, RatioData> resultMap;
+
+  private Set<Map.Entry<Long, RatioData>> set;
 
   private TairOperatorImpl tairOperator;
 
@@ -31,15 +34,15 @@ public class RatioTairBolt implements IRichBolt {
 
   @Override
   public void execute(Tuple tuple) {
-    resultMap = (Map<Long, RatioData>) tuple.getValue(0);
+    set = (Set) tuple.getValue(0);
+    long id = tuple.getLong(1);
     writeTair();
     collector.ack(tuple);
   }
 
   private void writeTair() {
-    for (long key : resultMap.keySet()) {
-      double ratio = resultMap.get(key).ratio();
-      tairOperator.write(RaceConfig.prex_ratio + key, ratio);
+    for (Map.Entry<Long, RatioData> e : set) {
+      tairOperator.write(RaceConfig.prex_ratio + e.getKey(), e.getValue().ratio());
     }
   }
 
