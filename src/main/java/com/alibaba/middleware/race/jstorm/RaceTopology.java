@@ -22,14 +22,15 @@ public class RaceTopology {
     builder.setSpout("spout", new MessageSpout(), 1);
     builder.setBolt("ratio", new RatioBolt(), 1).shuffleGrouping("spout");
     builder.setBolt("platform", new PlatformBolt(), 1).shuffleGrouping("spout");
+    builder.setBolt("ratioTair", new RatioTairBolt(), 1).shuffleGrouping("ratio");
 
 //    RaceUtils.initLog();
 //    LocalCluster cluster = new LocalCluster();
 //    cluster.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
 
     try {
-      StormSubmitter.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
-//      StormSubmitter.submitTopology("hehe", conf, builder.createTopology());
+//      StormSubmitter.submitTopology(RaceConfig.JstormTopologyName, conf, builder.createTopology());
+      StormSubmitter.submitTopology("hehe", conf, builder.createTopology());
     } catch (Exception e) {
       e.printStackTrace();
     }

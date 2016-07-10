@@ -46,7 +46,7 @@ public class Producer {
 
     for (int i = 0; i < count; i++) {
       try {
-        Thread.sleep(50);
+        Thread.sleep(20);
         final int platform = rand.nextInt(2);
         final OrderMessage orderMessage = (platform == 0 ? OrderMessage.createTbaoMessage() : OrderMessage.createTmallMessage());
         orderMessage.setCreateTime(System.currentTimeMillis());
@@ -59,7 +59,7 @@ public class Producer {
 
         producer.send(msgToBroker, new SendCallback() {
           public void onSuccess(SendResult sendResult) {
-            System.out.println(orderMessage);
+            //System.out.println(orderMessage);
             semaphore.release();
           }
 
@@ -85,7 +85,7 @@ public class Producer {
 
             producer.send(messageToBroker, new SendCallback() {
               public void onSuccess(SendResult sendResult) {
-                System.out.println(paymentMessage);
+                //System.out.println(paymentMessage);
               }
 
               public void onException(Throwable throwable) {

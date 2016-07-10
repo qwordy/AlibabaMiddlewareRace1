@@ -1,16 +1,21 @@
 package com.alibaba.middleware.race.jstorm;
 
+import backtype.storm.Config;
+import backtype.storm.Constants;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.IRichBolt;
 import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
 import com.alibaba.middleware.race.RaceConfig;
 import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.model.PaymentMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by yfy on 7/4/16.
@@ -25,9 +30,6 @@ public class RatioBolt implements IRichBolt {
 
   private long minTime, maxTime;
 
-  //private WriteTairThread writeTairThread;
-  //private int payCount;
-
   @Override
   public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
     collector = outputCollector;
@@ -36,26 +38,23 @@ public class RatioBolt implements IRichBolt {
     minTime = 9999999999L;
     maxTime = 0;
 
-    //payCount = 0;
-
-    new Thread(new RatioTairThread(resultMap)).start();
+    //new Thread(new RatioTairThread(resultMap)).start();
   }
 
   @Override
   public void execute(Tuple tuple) {
-//    if (tuple.getSourceComponent().equals(Constants.SYSTEM_COMPONENT_ID) &&
-//        tuple.getSourceStreamId().equals(Constants.SYSTEM_TICK_STREAM_ID)) {
-//      writeTair();
-//      return;
-//    }
+    if (tuple.getSourceComponent().equals(Constants.SYSTEM_COMPONENT_ID) &&
+        tuple.getSourceStreamId().equals(Constants.SYSTEM_TICK_STREAM_ID)) {
+      collector.emit(new Values(resultMap));
+      return;
+    }
 
     MyMessage msg = (MyMessage) tuple.getValue(0);
-    //RaceUtils.printMsg(msg, "[RatioBolt]");
     deal(msg);
     collector.ack(tuple);
   }
 
-  private void deal(MyMessage msg) {
+  public void deal(MyMessage msg) {
     if (!msg.getTopic().equals(RaceConfig.MqPayTopic))
       return;
 
@@ -67,32 +66,27 @@ public class RatioBolt implements IRichBolt {
 
     PaymentMessage pm = RaceUtils.readKryoObject(PaymentMessage.class, body);
     long minuteTime = (pm.getCreateTime() / 1000 / 60) * 60;
-    RatioData data = resultMap.get(minuteTime);
 
+    RatioData data = resultMap.get(minuteTime);
     if (data == null) {
       if (minuteTime > minTime) {
-        RatioData d = null;
-        long t;
-
-        for (t = minuteTime - 60; t >= minTime; t -= 60) {
-          d = resultMap.get(t);
+        for (long t = minuteTime - 60; t >= minTime; t -= 60) {
+          RatioData d = resultMap.get(t);
           if (d != null) {
             data = new RatioData(d);
             break;
           }
         }
-        while ((t += 60) < minuteTime)
-          resultMap.put(t, new RatioData(d));
       } else {
         data = new RatioData();
       }
+      resultMap.put(minuteTime, data);
     }
 
     if (pm.getPayPlatform() == 0)  // pc
       data.addPc(pm.getPayAmount());
     else
       data.addWireless(pm.getPayAmount());
-    resultMap.put(minuteTime, data);
 
     // update later time
     if (minuteTime < maxTime) {
@@ -123,15 +117,13 @@ public class RatioBolt implements IRichBolt {
 
   @Override
   public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-
+    outputFieldsDeclarer.declare(new Fields("resultMap"));
   }
 
   @Override
   public Map<String, Object> getComponentConfiguration() {
-//    Map<String, Object> conf = new Config();
-//    conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 10);
-//    return conf;
-
-    return null;
+    Map<String, Object> conf = new Config();
+    conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1);
+    return conf;
   }
 }

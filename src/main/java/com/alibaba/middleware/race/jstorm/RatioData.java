@@ -6,10 +6,7 @@ package com.alibaba.middleware.race.jstorm;
  */
 public class RatioData {
 
-  public RatioData() {
-    w = 0;
-    p = 0;
-  }
+  public RatioData() {}
 
   public RatioData(double wireless, double pc) {
     w = wireless;
