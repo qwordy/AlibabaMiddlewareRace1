@@ -20,7 +20,7 @@ public class RaceTopology {
     TopologyBuilder builder = new TopologyBuilder();
 
     builder.setSpout("spout", new MessageSpout(), 1);
-    builder.setBolt("ratio", new RatioBolt(), 3).shuffleGrouping("spout");
+    builder.setBolt("ratio", new RatioBolt(), 2).shuffleGrouping("spout");
     builder.setBolt("platform", new PlatformBolt(), 1).shuffleGrouping("spout");
     builder.setBolt("ratioTair", new RatioTairBolt(), 1).shuffleGrouping("ratio");
 
